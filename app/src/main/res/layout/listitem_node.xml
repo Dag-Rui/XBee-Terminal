@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clickable="false"
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/node_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Node Identifier" />
+
+        <TextView
+            android:id="@+id/node_address16"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1234" />
+
+        <TextView
+            android:id="@+id/node_address64"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1234567812345678" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="right"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/button_chat"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Chat" />
+
+        <Button
+            android:id="@+id/button_sms"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SMS" />
+
+        <Button
+            android:id="@+id/button_call"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Call" />
+
+
+    </LinearLayout>
+
+</LinearLayout>
