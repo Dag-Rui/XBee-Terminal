@@ -9,7 +9,7 @@
         android:id="@+id/node_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/progressBar"
+        android:layout_above="@+id/refresh_button"
         android:layout_alignParentTop="true"
         android:clickable="false">
 
@@ -23,15 +23,6 @@
         android:id="@+id/refresh_button"
         android:clickable="true"
         android:enabled="true" />
-
-    <ProgressBar
-        style="?android:attr/progressBarStyleSmall"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/progressBar"
-        android:layout_above="@id/refresh_button"
-        android:layout_centerHorizontal="true" />
-
 
 
 

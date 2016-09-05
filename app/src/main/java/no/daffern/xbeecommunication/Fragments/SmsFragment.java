@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.telephony.SmsManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,7 +28,7 @@ import no.daffern.xbeecommunication.R;
 import no.daffern.xbeecommunication.XBee.Frames.XBeeReceiveFrame;
 import no.daffern.xbeecommunication.XBee.Frames.XBeeStatusFrame;
 import no.daffern.xbeecommunication.XBee.Frames.XBeeTransmitFrame;
-import no.daffern.xbeecommunication.XBee.XBeeService;
+import no.daffern.xbeecommunication.XBeeService;
 import no.daffern.xbeecommunication.XBee.XBeeFrameType;
 
 /**
@@ -35,18 +36,19 @@ import no.daffern.xbeecommunication.XBee.XBeeFrameType;
  */
 public class SmsFragment extends Fragment {
 
+    private final static String TAG = SmsFragment.class.getSimpleName();
+
     Node node;
-    XBeeService XBeeService;
+    XBeeService xBeeService;
 
     EditText phoneField;
     EditText smsTextField;
 
-    TextView statusField;
+    TextView statusText;
     Button sendButton;
 
 
     Map<Integer, Map<Byte,SmsMessage>> smsMessageMap;  //node address hashkey, sms id, sms message
-    byte currentSmsId;
 
 
     @Override
@@ -68,8 +70,8 @@ public class SmsFragment extends Fragment {
     public SmsFragment(){
         smsMessageMap = new HashMap<>();
 
-        XBeeService = XBeeService.getInstance();
-        XBeeService.addXBeeFrameListener(new XBeeFrameListener() {
+        xBeeService = XBeeService.getInstance();
+        xBeeService.addXBeeFrameListener(new XBeeFrameListener() {
 
             @Override
             public void onSmsMessage(XBeeReceiveFrame frame) {
@@ -99,10 +101,48 @@ public class SmsFragment extends Fragment {
             @Override
             public void onSmsStatusMessage(XBeeReceiveFrame frame) {
 
+
+                byte[] rfData = frame.getRfData();
+                byte smsId = rfData[0];
+                byte status = rfData[0];
+
+                Map<Byte, SmsMessage> smsMap = smsMessageMap.get(Node.getKey(frame.getAddress64()));
+                if (smsMap == null){
+                    Log.e(TAG,"Error, received status message from unknown node");
+                    return;
+                }
+
+                SmsMessage smsMessage = smsMap.get(smsId);
+                smsMessage.setStatus(status);
+
+                switch (status){
+                    case SmsMessage.REMOTE_MOBILE_SENT_SMS:
+                        statusText.append(getString(R.string.REMOTE_MOBILE_SENT_SMS));
+                        break;
+                    case SmsMessage.REMOTE_MOBILE_ERROR_GENERIC_FAILURE:
+                        statusText.append(getString(R.string.REMOTE_MOBILE_ERROR_GENERIC_FAILURE));
+                        break;
+                    case SmsMessage.REMOTE_MOBILE_RESULT_ERROR_NO_SERVICE:
+                        statusText.append(getString(R.string.REMOTE_MOBILE_RESULT_ERROR_NO_SERVICE));
+                        break;
+                    case SmsMessage.REMOTE_MOBILE_RESULT_ERROR_NULL_PDU:
+                        statusText.append(getString(R.string.REMOTE_MOBILE_RESULT_ERROR_NULL_PDU));
+                        break;
+                    case SmsMessage.REMOTE_MOBILE_RESULT_ERROR_RADIO_OFF:
+                        statusText.append(getString(R.string.REMOTE_MOBILE_RESULT_ERROR_RADIO_OFF));
+                        break;
+                    case SmsMessage.TARGET_MOBILE_RECEIVED_SMS:
+                        statusText.append(getString(R.string.TARGET_MOBILE_RECEIVED_SMS));
+                        break;
+                }
+
+
+
             }
 
             @Override
             public void onTransmitStatus(XBeeStatusFrame xBeeStatusFrame) {
+                //statusText.append();
 
             }
 
@@ -115,7 +155,7 @@ public class SmsFragment extends Fragment {
     private void initUI(){
         phoneField = (EditText)getActivity().findViewById(R.id.phoneTextField);
         smsTextField = (EditText)getActivity().findViewById(R.id.smsTextField);
-        statusField = (TextView)getActivity().findViewById(R.id.smsStatusText);
+        statusText = (TextView)getActivity().findViewById(R.id.smsStatusText);
         sendButton = (Button)getActivity().findViewById(R.id.sendButton);
 
 
@@ -165,7 +205,7 @@ public class SmsFragment extends Fragment {
                 xBeeTransmitFrame.setRfData(rfData);
 
 
-                XBeeService.sendFrame(xBeeTransmitFrame);
+                xBeeService.sendFrame(xBeeTransmitFrame);
             }
         });
 
@@ -226,8 +266,7 @@ public class SmsFragment extends Fragment {
 
         XBeeTransmitFrame xBeeTransmitFrame = new XBeeTransmitFrame(XBeeFrameType.APP_SMS_STATUS_MESSAGE);
         xBeeTransmitFrame.setAddress64(node.address64);
-        xBeeTransmitFrame.setDataType(XBeeFrameType.APP_SMS_STATUS_MESSAGE);
         xBeeTransmitFrame.setRfData(new byte[]{smsId, status});
-        XBeeService.sendFrame(xBeeTransmitFrame);
+        xBeeService.sendFrame(xBeeTransmitFrame);
     }
 }

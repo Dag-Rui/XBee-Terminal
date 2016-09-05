@@ -1,4 +1,4 @@
-package no.daffern.xbeecommunication;
+package no.daffern.xbeecommunication.Other;
 
 
 import android.app.PendingIntent;
@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import no.daffern.xbeecommunication.Fragments.ChatFragment;
-import no.daffern.xbeecommunication.Listener.MessageListener;
+import no.daffern.xbeecommunication.R;
 
 /**
  * Created by Daffern on 28.05.2016.

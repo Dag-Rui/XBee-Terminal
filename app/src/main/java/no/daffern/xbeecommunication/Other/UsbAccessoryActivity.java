@@ -1,4 +1,4 @@
-package no.daffern.xbeecommunication;
+package no.daffern.xbeecommunication.Other;
 
 import android.app.Activity;
 import android.app.PendingIntent;

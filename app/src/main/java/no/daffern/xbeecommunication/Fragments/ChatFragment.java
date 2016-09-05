@@ -26,7 +26,7 @@ import no.daffern.xbeecommunication.XBee.Frames.XBeeATCommandResponseFrame;
 import no.daffern.xbeecommunication.XBee.Frames.XBeeReceiveFrame;
 import no.daffern.xbeecommunication.XBee.Frames.XBeeStatusFrame;
 import no.daffern.xbeecommunication.XBee.Frames.XBeeTransmitFrame;
-import no.daffern.xbeecommunication.XBee.XBeeService;
+import no.daffern.xbeecommunication.XBeeService;
 import no.daffern.xbeecommunication.XBee.XBeeFrameType;
 
 /**
@@ -73,9 +73,6 @@ public class ChatFragment extends Fragment {
         unAcknowledgedFrames = new ArrayList<>();
 
         xBeeService.addXBeeFrameListener(new XBeeFrameListener() {
-            @Override
-            public void onNodeUpdate() {
-            }
 
             @Override
             public void onChatMessage(XBeeReceiveFrame frame) {
@@ -121,19 +118,6 @@ public class ChatFragment extends Fragment {
 
             }
 
-            @Override
-            public void onSmsMessage(XBeeReceiveFrame frame) {
-            }
-
-            @Override
-            public void onVoiceMessage(XBeeReceiveFrame xBeeReceiveFrame) {
-
-            }
-
-            @Override
-            public void onATCommandResponse(XBeeATCommandResponseFrame xBeeATCommandResponseFrame) {
-
-            }
         });
     }
 
@@ -197,7 +181,7 @@ public class ChatFragment extends Fragment {
         //need to fix this
         nodeText = (TextView) getView().findViewById(R.id.nodeText);
         if (currentNode.nodeIdentifier == null || currentNode.nodeIdentifier.length() == 0) {
-            nodeText.setText("Chatting with: " + Utility.bytesToHex(currentNode.address64) + ":" + Utility.bytesToHex(currentNode.address16));
+            nodeText.setText("Chatting with: " + Utility.bytesToHex(currentNode.address64));
         } else {
             nodeText.setText("Chatting with: " + currentNode.nodeIdentifier);
 

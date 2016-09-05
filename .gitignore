@@ -40,7 +40,7 @@ captures/
 # Keystore files
 *.jks
 
-/speexjni/
+/com.purplefrog.speexjni/
 /codeiris/
 Arduino_Communication.ino
 app/libs/opus-wrapper-1.3-sources.jar

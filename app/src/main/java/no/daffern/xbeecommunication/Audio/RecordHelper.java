@@ -6,11 +6,13 @@ import android.media.MediaCodecInfo;
 import android.media.MediaCodecList;
 import android.media.MediaRecorder;
 import android.net.rtp.AudioCodec;
+import android.os.Handler;
 import android.util.Log;
 
-import org.xiph.speex.SpeexEncoder;
+import com.purplefrog.speexjni.FrequencyBand;
+import com.purplefrog.speexjni.SpeexEncoder;
 
-import java.nio.ByteBuffer;
+
 import java.util.ArrayList;
 
 /**
@@ -24,23 +26,15 @@ public class RecordHelper {
     private short audioFormat;
     private short channelConfig;
 
-    private int recordBufferSize = 320; //320 bytes per sample / 160 shorts per sample
+    private int recordBufferSize = 160; //320 bytes per sample / 160 shorts per sample
 
 
-    ArrayList<byte[]> audioSamples;
     ArrayList<byte[]> encodedSamples;
 
     AudioRecord recorder;
     SpeexEncoder speexEncoder;
 
     boolean isRecording = false;
-    boolean isEncoding = false;
-
-    RecordListener recordListener;
-
-    public void setRecordAudioListener(RecordListener recordListener) {
-        this.recordListener = recordListener;
-    }
 
 
     public void startRecord() {
@@ -48,8 +42,6 @@ public class RecordHelper {
             return;
 
         recorder = findAudioRecord();
-
-        audioSamples = new ArrayList<>();
 
         Thread recordingThread = new Thread(new Runnable() {
 
@@ -60,76 +52,35 @@ public class RecordHelper {
 
                 while (isRecording) {
 
-                    byte[] buffer = new byte[recordBufferSize];
+                    short[] buffer = new short[recordBufferSize];
                     int bytes = recorder.read(buffer, recordBufferSize, AudioRecord.READ_BLOCKING);
 
-                    audioSamples.add(buffer);
+                    byte[] encoded = speexEncoder.encode(buffer);
+
+                    encodedSamples.add(encoded);
                 }
 
                 recorder.stop();
                 recorder.release();
                 recorder = null;
 
-                recordListener.onRecordFinnish(audioSamples);
             }
+
         });
 
         recordingThread.start();
     }
 
 
-    public void stopRecording() {
-        if (recorder != null) {
-            isRecording = false;
-            audioSamples = null;
+    public void stop() {
+        isRecording = false;
 
-        }
     }
 
-
-    public void startEncoding() {
-        if (isEncoding)
-            return;
-
-        speexEncoder = new SpeexEncoder();
-        speexEncoder.init(0, 1, sampleRate, 1);
-
-        encodedSamples = new ArrayList<>();
-
-        Thread encodingThread = new Thread(new Runnable() {
-
-            public void run() {
-
-                isEncoding = true;
-                for (int i = 0 ; i < audioSamples.size() ; i++){
-
-                    byte[] samples = audioSamples.get(i);
-
-                    byte[] encoded = encode(samples, 0, recordBufferSize);
-
-                    encodedSamples.add(encoded);
-
-                    recordListener.onEncodeProgress(i/audioSamples.size());
-
-                }
-                isEncoding = false;
-
-                recordListener.onEncodeFinnish(encodedSamples);
-            }
-        });
-
-        encodingThread.start();
+    public byte[] getNextSample(){
+        return null;
     }
 
-    byte[] encode(byte[] data, int offset, int length) {
-
-        speexEncoder.processData(data, offset, length);
-        int size = speexEncoder.getProcessedDataByteSize();
-        byte[] newByte = new byte[size];
-        speexEncoder.getProcessedData(newByte, 0);
-
-        return newByte;
-    }
 
     public void printCodecs() {
         AudioCodec[] codecs = AudioCodec.getCodecs();
@@ -151,7 +102,7 @@ public class RecordHelper {
     }
 
 
-    private static int[] sampleRates = new int[]{8000, 11025, 16000, 22050, 44100};
+    private static int[] sampleRates = new int[]{8000, 16000, 32000};
     private static short[] audioFormats = new short[]{AudioFormat.ENCODING_PCM_8BIT, AudioFormat.ENCODING_PCM_16BIT, AudioFormat.ENCODING_DEFAULT, AudioFormat.ENCODING_AC3, AudioFormat.ENCODING_PCM_FLOAT};
 
     public AudioRecord findAudioRecord() {
@@ -187,9 +138,5 @@ public class RecordHelper {
     }
 
 
-    public interface RecordListener{
-        void onRecordFinnish(ArrayList<byte[]> arrayList);
-        void onEncodeProgress(int percent);
-        void onEncodeFinnish(ArrayList<byte[]> arrayList);
-    }
+
 }

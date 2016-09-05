@@ -1,8 +1,6 @@
 package no.daffern.xbeecommunication;
 
 
-import android.app.Activity;
-import android.app.ActivityManager;
 import android.content.Intent;
 import android.hardware.usb.UsbAccessory;
 import android.hardware.usb.UsbDevice;
@@ -31,12 +29,12 @@ import no.daffern.xbeecommunication.Fragments.StartFragment;
 import no.daffern.xbeecommunication.Fragments.VoiceFragment;
 import no.daffern.xbeecommunication.Listener.MessageListener;
 import no.daffern.xbeecommunication.Listener.NodeListListener;
+import no.daffern.xbeecommunication.Listener.UsbListener;
 import no.daffern.xbeecommunication.Model.Node;
 import no.daffern.xbeecommunication.USB.UsbAccessoryWrapper;
 import no.daffern.xbeecommunication.USB.UsbHostWrapper;
 import no.daffern.xbeecommunication.XBee.Frames.XBeeATCommandFrame;
 import no.daffern.xbeecommunication.XBee.Frames.XBeeFrame;
-import no.daffern.xbeecommunication.XBee.XBeeService;
 import no.daffern.xbeecommunication.XBee.XBeeFrameBuffer;
 
 
@@ -134,20 +132,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void bufferFrame(byte[] bytes) {
-        ArrayList<XBeeFrame> frames;
-        try {
-            frames = xBeeFrameBuffer.putAndCheck(bytes);
-
-            for (XBeeFrame frame : frames){
-                xBeeService.receiveFrame(frame);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
 
     private void initInterface() {
         setContentView(R.layout.activity_main);
@@ -238,7 +222,8 @@ public class MainActivity extends AppCompatActivity {
             return false;
         }
     }
-    private boolean isUsbConnected(){
+
+    private boolean isUsbConnected() {
         if (connectedState == ConnectedState.connectedAsAccessory) {
             return true;
         } else if (connectedState == ConnectedState.connectedAsHost) {
@@ -250,55 +235,81 @@ public class MainActivity extends AppCompatActivity {
 
     private void initUsbHandlers() {
         usbAccessoryWrapper = new UsbAccessoryWrapper(this);
-        usbAccessoryWrapper.setHandler(new Handler() {
+        usbAccessoryWrapper.setUsbListener(new UsbListener() {
             @Override
-            public void handleMessage(Message message) {
+            public void onDataReceived(byte[] bytes) {
+                bufferFrame(bytes);
 
-                switch (message.what) {
-                    case UsbAccessoryWrapper.MESSAGE_RECEIVED:
-                        bufferFrame((byte[]) message.obj);
-                        break;
-                    case UsbAccessoryWrapper.CONNECTED:
-                        connectedState = ConnectedState.connectedAsAccessory;
-                        isConnectedText.setText(R.string.accessoryConnected);
-                        startFragment.startReadXBeeParameters();
-                        break;
-                    case UsbAccessoryWrapper.DISCONNECTED:
-                        connectedState = ConnectedState.notConnected;
-                        isConnectedText.setText(R.string.notConnected);
-                        break;
+            }
 
-                }
+            @Override
+            public void onConnectionStatusChanged(final boolean connected) {
+
+                //Needs to run on the UI thread
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        if (connected) {
+                            connectedState = ConnectedState.connectedAsAccessory;
+                            isConnectedText.setText(R.string.accessoryConnected);
+                            startFragment.startReadXBeeParameters();
+                        } else {
+                            connectedState = ConnectedState.notConnected;
+                            isConnectedText.setText(R.string.notConnected);
+                        }
+
+
+                    }
+                });
+
             }
         });
+
+
         usbHostWrapper = new UsbHostWrapper(this);
-        usbHostWrapper.setHandler(new Handler() {
+        usbHostWrapper.setUsbListener(new UsbListener() {
             @Override
-            public void handleMessage(Message message) {
-                switch (message.what) {
-                    case UsbHostWrapper.MESSAGE_FROM_SERIAL_PORT:
-                        bufferFrame((byte[]) message.obj);
-                        break;
-                    case UsbHostWrapper.CONNECTED:
-                        connectedState = ConnectedState.connectedAsHost;
-                        isConnectedText.setText(R.string.hostConnected);
-                        startFragment.startReadXBeeParameters();
-                        break;
-                    case UsbHostWrapper.DISCONNECTED:
-                        connectedState = ConnectedState.notConnected;
-                        isConnectedText.setText(R.string.notConnected);
-                        break;
-                }
+            public void onDataReceived(byte[] bytes) {
+                bufferFrame(bytes);
+
+            }
+
+            @Override
+            public void onConnectionStatusChanged(final boolean connected) {
+
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (connected) {
+                            connectedState = ConnectedState.connectedAsHost;
+                            isConnectedText.setText(R.string.hostConnected);
+                            startFragment.startReadXBeeParameters();
+                        } else {
+                            connectedState = ConnectedState.notConnected;
+                            isConnectedText.setText(R.string.notConnected);
+                        }
+                    }
+                });
             }
         });
+
     }
 
-    public void readXBeeParameters() {
-        XBeeATCommandFrame shFrame = new XBeeATCommandFrame("SH");
-        XBeeATCommandFrame slFrame = new XBeeATCommandFrame("SL");
-        XBeeATCommandFrame firmwareFrame = new XBeeATCommandFrame("VR");
-        XBeeATCommandFrame hardwareFrame = new XBeeATCommandFrame("HV");
+    public void bufferFrame(byte[] bytes) {
+        ArrayList<XBeeFrame> frames;
+        try {
+            frames = xBeeFrameBuffer.putAndCheck(bytes);
+
+            for (XBeeFrame frame : frames) {
+                xBeeService.receiveFrame(frame);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
+
 
     public void storeData() {/*
         File cacheDir = getCacheDir();

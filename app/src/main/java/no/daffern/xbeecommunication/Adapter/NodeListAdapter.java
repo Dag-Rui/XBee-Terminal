@@ -66,7 +66,7 @@ public class NodeListAdapter extends ArrayAdapter<Node> {
 
         TextView nodeName = (TextView) row.findViewById(R.id.node_name);
         TextView address64 = (TextView) row.findViewById(R.id.node_address64);
-        TextView address16 = (TextView) row.findViewById(R.id.node_address16);
+
 
         Button chatButton = (Button) row.findViewById(R.id.button_chat);
         Button smsButton = (Button) row.findViewById(R.id.button_sms);
@@ -81,7 +81,7 @@ public class NodeListAdapter extends ArrayAdapter<Node> {
 
         nodeName.setText(node.nodeIdentifier);
         address64.setText(Utility.bytesToHex(node.address64));
-        address16.setText(Utility.bytesToHex(node.address16));
+
 
         row.setTag(node);
 
@@ -102,7 +102,6 @@ public class NodeListAdapter extends ArrayAdapter<Node> {
             final int position = nodeView.getPositionForView((View) v.getParent());
             Node node = getItem(position);
             nodeListListener.onChatClicked(node);
-            Log.e("jei", "pos: " + position);
         }
     };
     public View.OnClickListener onSmsClickListener = new View.OnClickListener() {
@@ -111,7 +110,6 @@ public class NodeListAdapter extends ArrayAdapter<Node> {
             final int position = nodeView.getPositionForView((View) v.getParent());
             Node node = getItem(position);
             nodeListListener.onSmsClicked(node);
-            Log.e("jei", "pos: " + position);
         }
     };
 
@@ -121,7 +119,6 @@ public class NodeListAdapter extends ArrayAdapter<Node> {
             final int position = nodeView.getPositionForView((View) v.getParent());
             Node node = getItem(position);
             nodeListListener.onCallClicked(node);
-            Log.e("jei", "pos: " + position);
         }
     };
 }

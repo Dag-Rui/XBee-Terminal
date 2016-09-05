@@ -1,7 +1,5 @@
-package no.daffern.xbeecommunication.XBee;
+package no.daffern.xbeecommunication;
 
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -16,6 +14,8 @@ import no.daffern.xbeecommunication.XBee.Frames.XBeeFrame;
 import no.daffern.xbeecommunication.XBee.Frames.XBeeReceiveFrame;
 import no.daffern.xbeecommunication.XBee.Frames.XBeeStatusFrame;
 import no.daffern.xbeecommunication.XBee.Frames.XBeeTransmitFrame;
+import no.daffern.xbeecommunication.XBee.XBeeATNetworkDiscover;
+import no.daffern.xbeecommunication.XBee.XBeeFrameType;
 
 /**
  * Created by Daffern on 22.06.2016.

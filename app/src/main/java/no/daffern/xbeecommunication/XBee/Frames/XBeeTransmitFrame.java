@@ -17,6 +17,7 @@ public class XBeeTransmitFrame extends XBeeFrame {
     byte broadcastRadius = 0x0;//0 defaults to configuration on xbee
     byte options = 0x0;//Bit 1 - Disable ACK, Bit 2 - disable network address discovery
 
+    boolean statusFrameEnabled = true;
 
     byte[] rfData;
 
@@ -27,7 +28,6 @@ public class XBeeTransmitFrame extends XBeeFrame {
 
     public XBeeTransmitFrame(byte dataType) {
         frameType = XBeeFrameType.XBEE_TRANSMIT_REQUEST;
-        frameId = getNextFrameId();
         this.dataType = dataType;
     }
 
@@ -38,6 +38,13 @@ public class XBeeTransmitFrame extends XBeeFrame {
 
     @Override
     public byte[] generateFrame(){
+        if (statusFrameEnabled){
+            frameId = getNextFrameId();
+        }
+        else{
+            frameId = 0;
+        }
+
         int bytes = MIN_PAYLOAD + rfData.length + FRAME_BASE_SIZE + 1;
         int payloadSize = MIN_PAYLOAD + rfData.length + 1;
         byte[] frame = new byte[bytes];
@@ -77,6 +84,10 @@ public class XBeeTransmitFrame extends XBeeFrame {
         frame[18 + rfData.length] = checksum.generate();
 
         return frame;
+    }
+
+    public void setStatusFrameEnabled(boolean bool){
+        this.statusFrameEnabled = bool;
     }
 
     public void setAck(boolean ack){

@@ -8,14 +8,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 
 import no.daffern.xbeecommunication.Adapter.NodeListAdapter;
 import no.daffern.xbeecommunication.Listener.XBeeFrameListener;
 import no.daffern.xbeecommunication.Listener.NodeListListener;
 import no.daffern.xbeecommunication.R;
 import no.daffern.xbeecommunication.XBee.Frames.XBeeATCommandFrame;
-import no.daffern.xbeecommunication.XBee.XBeeService;
+import no.daffern.xbeecommunication.XBeeService;
 import no.daffern.xbeecommunication.XBee.XBeeATNetworkDiscover;
 import no.daffern.xbeecommunication.XBeeConfigVars;
 
@@ -29,7 +28,6 @@ public class NodeListFragment extends Fragment {
     NodeListAdapter nodeListAdapter;
     ListView nodeView;
     Button refreshButton;
-    ProgressBar progressBar;
 
     NodeListListener nodeListListener;
 
@@ -50,13 +48,6 @@ public class NodeListFragment extends Fragment {
         nodeView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
         nodeView.setStackFromBottom(false);
 
-        progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
-        progressBar.setInterpolator(new android.view.animation.Interpolator() {
-            @Override
-            public float getInterpolation(float input) {
-                return 0;
-            }
-        });
 
         refreshButton = (Button) getActivity().findViewById(R.id.refresh_button);
         refreshButton.setOnClickListener(new View.OnClickListener() {

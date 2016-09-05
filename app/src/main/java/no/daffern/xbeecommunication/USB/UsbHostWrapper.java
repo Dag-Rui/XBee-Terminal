@@ -20,6 +20,8 @@ import com.felhr.usbserial.UsbSerialInterface;
 import java.util.HashMap;
 import java.util.Map;
 
+import no.daffern.xbeecommunication.Listener.UsbListener;
+
 /**
  * Created by Daffern on 10.06.2016.
  */
@@ -28,22 +30,18 @@ public class  UsbHostWrapper {
     private static final String ACTION_USB_HOST_PERMISSION = "com.android.example.USB_HOST_PERMISSION";
 
 
-    public static final int MESSAGE_FROM_SERIAL_PORT = 0;
-    public static final int CTS_CHANGE = 1;
-    public static final int DSR_CHANGE = 2;
-    public static final int CONNECTED = 3;
-    public static final int DISCONNECTED = 4;
+
 
     private static final int BAUD_RATE = 57600;
 
     private Activity activity;
-
     private UsbManager usbManager;
-    private Handler mHandler;
     private UsbDevice device;
     private UsbDeviceConnection connection;
     private UsbSerialDevice serialPort;
     private boolean serialPortConnected;
+
+    UsbListener usbListener;
 
     public UsbHostWrapper(Activity activity) {
         this.activity = activity;
@@ -59,8 +57,7 @@ public class  UsbHostWrapper {
     private UsbSerialInterface.UsbReadCallback mCallback = new UsbSerialInterface.UsbReadCallback() {
         @Override
         public void onReceivedData(byte[] bytes) {
-            if (mHandler != null)
-                mHandler.obtainMessage(MESSAGE_FROM_SERIAL_PORT, bytes).sendToTarget();
+            usbListener.onDataReceived(bytes);
         }
     };
 
@@ -70,9 +67,7 @@ public class  UsbHostWrapper {
     private UsbSerialInterface.UsbCTSCallback ctsCallback = new UsbSerialInterface.UsbCTSCallback() {
         @Override
         public void onCTSChanged(boolean state) {
-            if (mHandler != null)
-                mHandler.obtainMessage(CTS_CHANGE).sendToTarget();
-
+            //Not used
         }
     };
 
@@ -82,8 +77,7 @@ public class  UsbHostWrapper {
     private UsbSerialInterface.UsbDSRCallback dsrCallback = new UsbSerialInterface.UsbDSRCallback() {
         @Override
         public void onDSRChanged(boolean state) {
-            if (mHandler != null)
-                mHandler.obtainMessage(DSR_CHANGE).sendToTarget();
+            //Not used
         }
     };
     private final BroadcastReceiver usbReceiver = new BroadcastReceiver() {
@@ -131,15 +125,13 @@ public class  UsbHostWrapper {
 
     private void setConnectionStatus(boolean connected) {
 
-        if (connected)
-            mHandler.obtainMessage(CONNECTED).sendToTarget();
-        else
-            mHandler.obtainMessage(DISCONNECTED).sendToTarget();
+        usbListener.onConnectionStatusChanged(connected);
+
         serialPortConnected = connected;
     }
 
-    public void setHandler(Handler mHandler) {
-        this.mHandler = mHandler;
+    public void setUsbListener(UsbListener usbListener){
+        this.usbListener = usbListener;
     }
 
     private void findSerialPortDevice() {

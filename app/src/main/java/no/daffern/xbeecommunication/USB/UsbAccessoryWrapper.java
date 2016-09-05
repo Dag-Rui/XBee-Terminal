@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import no.daffern.xbeecommunication.Listener.UsbListener;
+
 /**
  * Created by Daffern on 10.06.2016.
  */
@@ -27,10 +29,6 @@ public class UsbAccessoryWrapper  {
     private static final String TAG = UsbAccessoryWrapper.class.getSimpleName();
 
     private static final String ACTION_USB_ACCESSORY_PERMISSION = "com.android.example.USB_ACCESSORY_PERMISSION";
-
-    public static final int MESSAGE_RECEIVED = 0;
-    public static final int CONNECTED = 1;
-    public static final int DISCONNECTED = 2;
 
 
     private Activity activity;
@@ -46,7 +44,7 @@ public class UsbAccessoryWrapper  {
     boolean isConnected = false;
     ConnectedThread mConnectedThread;
 
-    Handler handler;
+    UsbListener usbListener;
 
     public UsbAccessoryWrapper(Activity activity) {
         this.activity = activity;
@@ -66,8 +64,8 @@ public class UsbAccessoryWrapper  {
         activity.registerReceiver(mUsbReceiver, filter);
     }
 
-    public void setHandler(Handler handler) {
-        this.handler = handler;
+    public void setUsbListener(UsbListener usbListener) {
+        this.usbListener = usbListener;
     }
 
 
@@ -162,10 +160,7 @@ public class UsbAccessoryWrapper  {
 
     private void setConnectionStatus(boolean connected) {
 
-        if (connected)
-            handler.obtainMessage(CONNECTED).sendToTarget();
-        else
-            handler.obtainMessage(DISCONNECTED).sendToTarget();
+        usbListener.onConnectionStatusChanged(connected);
 
         isConnected = connected;
     }
@@ -250,8 +245,8 @@ public class UsbAccessoryWrapper  {
                     if (bytes > 0) { // The message is 4 bytes long
                         final byte[] newBuffer = new byte[bytes];
                         System.arraycopy(buffer, 0, newBuffer, 0, bytes);
-                        handler.obtainMessage(MESSAGE_RECEIVED, newBuffer).sendToTarget();
 
+                        usbListener.onDataReceived(newBuffer);
                     }
                 } catch (Exception e) {
                     Log.e(TAG, "read failed", e);

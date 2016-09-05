@@ -103,9 +103,9 @@ public class XBeeFrameBuffer {
             //if there are less than on frame in the buffer, move the bytes to the start of the buffer
             else if (frameEnd > byteCount) {
 
-                System.arraycopy(buffer, position, buffer, 0, bufferSize - position);
-                position = 0;
+                System.arraycopy(buffer, position, buffer, 0, byteCount - position);
                 byteCount = byteCount - position;
+                position = 0;
                 break;
             }
         }

@@ -18,7 +18,7 @@ import no.daffern.xbeecommunication.XBee.Frames.XBeeATCommandFrame;
 import no.daffern.xbeecommunication.XBee.Frames.XBeeATCommandResponseFrame;
 import no.daffern.xbeecommunication.XBee.Frames.XBeeReceiveFrame;
 import no.daffern.xbeecommunication.XBee.Frames.XBeeStatusFrame;
-import no.daffern.xbeecommunication.XBee.XBeeService;
+import no.daffern.xbeecommunication.XBeeService;
 import no.daffern.xbeecommunication.XBeeConfigVars;
 
 /**

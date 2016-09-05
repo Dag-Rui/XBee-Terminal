@@ -20,30 +20,6 @@
         android:padding="50dp"
         android:text="talk" />
 
-    <Switch
-        android:id="@+id/instantVoiceSwitch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:checked="false"
-        android:text="Instant Voice" />
-
-    <Switch
-        android:id="@+id/instantEncodeSwitch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:checked="false"
-        android:text="Instant Encode" />
-
-    <Switch
-        android:id="@+id/instantDecodeSwitch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:checked="false"
-        android:text="Instant Decode" />
-
     <TextView
         android:id="@+id/bps_out_text"
         android:layout_width="wrap_content"
@@ -76,26 +52,14 @@
         android:text="Medium Text"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <RelativeLayout
-        android:layout_width="match_parent"
+
+    <TextView
+        android:id="@+id/data_received"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        >
-
-        <ProgressBar
-            android:id="@+id/codecProgressBar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:indeterminate="false"
-            />
-
-        <TextView
-            android:id="@+id/codecBarText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="test" />
-    </RelativeLayout>
+        android:layout_gravity="center_horizontal"
+        android:text="0 bytes received"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <Button
         android:layout_width="wrap_content"

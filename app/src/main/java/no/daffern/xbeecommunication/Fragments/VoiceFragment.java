@@ -1,10 +1,7 @@
 package no.daffern.xbeecommunication.Fragments;
 
-import android.app.Activity;
 import android.media.AudioManager;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -15,10 +12,7 @@ import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import no.daffern.xbeecommunication.Audio.PlaybackHelper;
 import no.daffern.xbeecommunication.Audio.RecordHelper;
@@ -29,7 +23,7 @@ import no.daffern.xbeecommunication.Utility;
 import no.daffern.xbeecommunication.XBee.Frames.XBeeReceiveFrame;
 import no.daffern.xbeecommunication.XBee.Frames.XBeeStatusFrame;
 import no.daffern.xbeecommunication.XBee.Frames.XBeeTransmitFrame;
-import no.daffern.xbeecommunication.XBee.XBeeService;
+import no.daffern.xbeecommunication.XBeeService;
 import no.daffern.xbeecommunication.XBee.XBeeFrameType;
 
 /**
@@ -53,13 +47,6 @@ public class VoiceFragment extends Fragment {
     TextView bytesPerFrameOut;
     TextView dataOutBps;
     TextView bytePerFrameIn;
-
-    Switch instantVoiceSwitch;
-    Switch instantEncodeSwitch;
-    Switch instantDecodeSwitch;
-
-    ProgressBar progressBar;
-    TextView progressText;
 
     public void setCurrentNode(Node node) {
         this.currentNode = node;
@@ -97,14 +84,6 @@ public class VoiceFragment extends Fragment {
 
         Button button = (Button) getView().findViewById(R.id.button_talk);
 
-        instantVoiceSwitch = (Switch) getView().findViewById(R.id.instantVoiceSwitch);
-        instantEncodeSwitch = (Switch) getView().findViewById(R.id.instantEncodeSwitch);
-        instantDecodeSwitch = (Switch) getView().findViewById(R.id.instantDecodeSwitch);
-
-        progressBar = (ProgressBar)view.findViewById(R.id.codecProgressBar);
-        progressBar.setMax(100);
-        progressText = (TextView)view.findViewById(R.id.codecBarText);
-
 
         playbackHelper = new PlaybackHelper();
         recordHelper = new RecordHelper();
@@ -117,42 +96,14 @@ public class VoiceFragment extends Fragment {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     recordHelper.startRecord();
                 } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                    recordHelper.stopRecording();
+                    recordHelper.stop();
                 }
 
                 return true;
             }
         });
 
-        recordHelper.setRecordAudioListener(new RecordHelper.RecordListener() {
-            @Override
-            public void onRecordFinnish(ArrayList<byte[]> arrayList) {
-                recordHelper.startEncoding();
-            }
 
-            @Override
-            public void onEncodeProgress(int percent) {
-                progressText.setText("Encoding message...");
-                progressBar.setProgress(percent);
-            }
-
-            @Override
-            public void onEncodeFinnish(ArrayList<byte[]> arrayList) {
-
-                for (byte[] bytes : arrayList){
-
-                    XBeeTransmitFrame xBeeTransmitFrame = new XBeeTransmitFrame(XBeeFrameType.APP_VOICE_MESSAGE);
-                    xBeeTransmitFrame.setRfData(bytes);
-
-                    try {
-                        Thread.sleep(200);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-            }
-        });
 
 
 
@@ -160,7 +111,7 @@ public class VoiceFragment extends Fragment {
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                playbackHelper.startDecode();
+
             }
         });
     }
@@ -192,7 +143,6 @@ public class VoiceFragment extends Fragment {
             public void onVoiceMessage(XBeeReceiveFrame xBeeReceiveFrame) {
                 playbackHelper.addDecoded(xBeeReceiveFrame.getRfData());
 
-                progressText.setText("Received " + playbackHelper.getEncodedSamples().size() + " audio samples");
 
 
             }
