@@ -93,8 +93,8 @@ public class ChatFragment extends Fragment {
                 ChatMessage chatMessage = new ChatMessage(true, new String(frame.getRfData()), "", frame.getFrameId());
 
                 messages.add(chatMessage);
-                if (chatAdapter != null)
-                    chatAdapter.notifyDataSetChanged();
+
+                updateUI();
             }
 
             @Override
@@ -110,8 +110,8 @@ public class ChatFragment extends Fragment {
                         } else {
                             chatMessage.status = "Failed with code: " + frame.getDeliveryStatus();
                         }
+                        updateUI();
                         unAcknowledgedFrames.remove(chatMessage);
-                        chatAdapter.notifyDataSetChanged();
                         break;
                     }
                 }
@@ -126,6 +126,15 @@ public class ChatFragment extends Fragment {
         if (chatAdapter != null) {
             chatAdapter.setMessages(messageMap.get(currentNode.getKey()));
         }
+    }
+    public void updateUI(){
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (chatAdapter != null)
+                    chatAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
 
@@ -151,7 +160,7 @@ public class ChatFragment extends Fragment {
             }
 
             messages.add(chatMessage);
-            chatAdapter.notifyDataSetChanged();
+            updateUI();
         }
 
         writeText.getText().clear();

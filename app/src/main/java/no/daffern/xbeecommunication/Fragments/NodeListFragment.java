@@ -78,7 +78,7 @@ public class NodeListFragment extends Fragment {
 
             @Override
             public void onNodeUpdate() {
-                nodeListAdapter.notifyDataSetChanged();
+                updateUI();
             }
 
 
@@ -91,6 +91,15 @@ public class NodeListFragment extends Fragment {
         nodeListAdapter.setNodeListListener(nodeListListener);
     }
 
+    public void updateUI(){
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                nodeListAdapter.notifyDataSetChanged();
+
+            }
+        });
+    }
 
     public void setNodeListListener(NodeListListener nodeListListener) {
         this.nodeListListener = nodeListListener;

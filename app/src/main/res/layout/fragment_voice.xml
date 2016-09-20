@@ -18,7 +18,8 @@
         android:layout_gravity="center_horizontal"
         android:layout_margin="20dp"
         android:padding="50dp"
-        android:text="talk" />
+        android:text="talk"
+        android:background="@color/green"/>
 
     <TextView
         android:id="@+id/bps_out_text"

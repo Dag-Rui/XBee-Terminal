@@ -15,7 +15,9 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import no.daffern.xbeecommunication.Audio.PlaybackHelper;
+import no.daffern.xbeecommunication.Audio.PlaybackStreamHelper;
 import no.daffern.xbeecommunication.Audio.RecordHelper;
+import no.daffern.xbeecommunication.Audio.RecordStreamHelper;
 import no.daffern.xbeecommunication.Listener.XBeeFrameListener;
 import no.daffern.xbeecommunication.Model.Node;
 import no.daffern.xbeecommunication.R;
@@ -36,10 +38,7 @@ public class VoiceFragment extends Fragment {
 
     Node currentNode;
 
-    RecordHelper recordHelper;
-    PlaybackHelper playbackHelper;
-
-    XBeeService XBeeService;
+    XBeeService xBeeService;
 
     TextView nodeText;
 
@@ -47,6 +46,10 @@ public class VoiceFragment extends Fragment {
     TextView bytesPerFrameOut;
     TextView dataOutBps;
     TextView bytePerFrameIn;
+
+    boolean recording = false;
+    PlaybackStreamHelper playbackStreamHelper;
+    RecordStreamHelper recordStreamHelper;
 
     public void setCurrentNode(Node node) {
         this.currentNode = node;
@@ -82,38 +85,48 @@ public class VoiceFragment extends Fragment {
         dataOutBps = (TextView) getView().findViewById(R.id.bps_out_text);
         bytesPerFrameOut = (TextView) getView().findViewById(R.id.data_out_per_frame_text);
 
-        Button button = (Button) getView().findViewById(R.id.button_talk);
-
-
-        playbackHelper = new PlaybackHelper();
-        recordHelper = new RecordHelper();
-
-
-        button.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    recordHelper.startRecord();
-                } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                    recordHelper.stop();
-                }
-
-                return true;
-            }
-        });
+        final Button talkButton = (Button) getView().findViewById(R.id.button_talk);
 
 
 
-
-
-        Button playButton = (Button)view.findViewById(R.id.playButton);
-        playButton.setOnClickListener(new View.OnClickListener() {
+        talkButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (recording){
+                    talkButton.setBackgroundColor(getResources().getColor(R.color.green));
 
+                    recordStreamHelper.stop();
+                    recording = false;
+
+                }else{
+                    talkButton.setBackgroundColor(getResources().getColor(R.color.red));
+
+                    recordStreamHelper.start();
+                    recording = true;
+
+                }
             }
         });
+
+        recordStreamHelper = new RecordStreamHelper();
+
+        recordStreamHelper.setSpeexFrameListener(new RecordStreamHelper.SpeexFrameListener() {
+            @Override
+            public void onFrameRecorded(byte[] frame) {
+
+
+                XBeeTransmitFrame xBeeTransmitFrame = new XBeeTransmitFrame(XBeeFrameType.APP_VOICE_MESSAGE);
+                xBeeTransmitFrame.setStatusFrameEnabled(false);
+                xBeeTransmitFrame.setRfData(frame);
+                xBeeTransmitFrame.setAddress64(currentNode.address64);
+
+                xBeeService.sendFrame(xBeeTransmitFrame);
+            }
+        });
+
+        playbackStreamHelper = new PlaybackStreamHelper();
+        playbackStreamHelper.start();
+
     }
 
     @Override
@@ -130,8 +143,8 @@ public class VoiceFragment extends Fragment {
 
 
     public VoiceFragment() {
-        XBeeService = XBeeService.getInstance();
-        XBeeService.addXBeeFrameListener(new XBeeFrameListener() {
+        xBeeService = XBeeService.getInstance();
+        xBeeService.addXBeeFrameListener(new XBeeFrameListener() {
 
 
             @Override
@@ -141,19 +154,15 @@ public class VoiceFragment extends Fragment {
 
             @Override
             public void onVoiceMessage(XBeeReceiveFrame xBeeReceiveFrame) {
-                playbackHelper.addDecoded(xBeeReceiveFrame.getRfData());
-
-
+                playbackStreamHelper.addFrame(xBeeReceiveFrame.getRfData());
 
             }
-
 
             @Override
             public void onVoiceStatusMessage(XBeeReceiveFrame xBeeReceiveFrame) {
 
             }
         });
-
 
     }
 
@@ -174,12 +183,14 @@ public class VoiceFragment extends Fragment {
             XBeeTransmitFrame xBeeTransmitFrame = new XBeeTransmitFrame(XBeeFrameType.APP_VOICE_MESSAGE);
             xBeeTransmitFrame.setRfData(buffer);
 
-            XBeeService.sendFrame(xBeeTransmitFrame);
+            xBeeService.sendFrame(xBeeTransmitFrame);
 
             pointer += length;
         }
 
     }
+
+
 
 
 }

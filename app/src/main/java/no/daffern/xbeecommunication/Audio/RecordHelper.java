@@ -5,6 +5,7 @@ import android.media.AudioRecord;
 import android.media.MediaCodecInfo;
 import android.media.MediaCodecList;
 import android.media.MediaRecorder;
+import android.media.audiofx.AcousticEchoCanceler;
 import android.net.rtp.AudioCodec;
 import android.os.Handler;
 import android.util.Log;
@@ -43,6 +44,18 @@ public class RecordHelper {
 
         recorder = findAudioRecord();
 
+        int sessionId = recorder.getAudioSessionId();
+
+        AcousticEchoCanceler acousticEchoCanceler = AcousticEchoCanceler.create(sessionId);
+        acousticEchoCanceler.setEnabled(true);
+
+        if (acousticEchoCanceler.getEnabled()){
+            Log.d(TAG,"AEC enabled");
+        }else{
+            Log.d(TAG,"could not enable AEC");
+        }
+
+
         Thread recordingThread = new Thread(new Runnable() {
 
             public void run() {
@@ -53,7 +66,7 @@ public class RecordHelper {
                 while (isRecording) {
 
                     short[] buffer = new short[recordBufferSize];
-                    int bytes = recorder.read(buffer, recordBufferSize, AudioRecord.READ_BLOCKING);
+                    int bytes = recorder.read(buffer, 0, recordBufferSize);
 
                     byte[] encoded = speexEncoder.encode(buffer);
 

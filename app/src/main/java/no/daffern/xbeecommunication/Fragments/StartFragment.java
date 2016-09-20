@@ -1,5 +1,6 @@
 package no.daffern.xbeecommunication.Fragments;
 
+
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 import java.util.Arrays;
 
 import no.daffern.xbeecommunication.Listener.XBeeFrameListener;
+
 import no.daffern.xbeecommunication.R;
 import no.daffern.xbeecommunication.Utility;
 import no.daffern.xbeecommunication.XBee.Frames.XBeeATCommandFrame;
@@ -64,12 +66,18 @@ public class StartFragment extends Fragment {
     }
 
     public void updateUI(){
-        address.setText("Serial number: "+Utility.bytesToHex(XBeeConfigVars.serialNumberHigh) + " " + Utility.bytesToHex(XBeeConfigVars.serialNumberLow));
-        firmware.setText("Firmware version: "+Utility.bytesToHex(XBeeConfigVars.firmwareVersion));
-        hardware.setText("Hardware version: "+Utility.bytesToHex(XBeeConfigVars.hardwareVersion));
-        operatingChannel.setText("Operating channel: "+Utility.bytesToHex(XBeeConfigVars.operatingChannel));
-        networkId.setText("Network ID: "+Utility.bytesToHex(XBeeConfigVars.networkId));
 
+        //Run ui updates on ui thread
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                address.setText("Serial number: "+Utility.bytesToHex(XBeeConfigVars.serialNumberHigh) + " " + Utility.bytesToHex(XBeeConfigVars.serialNumberLow));
+                firmware.setText("Firmware version: "+Utility.bytesToHex(XBeeConfigVars.firmwareVersion));
+                hardware.setText("Hardware version: "+Utility.bytesToHex(XBeeConfigVars.hardwareVersion));
+                operatingChannel.setText("Operating channel: "+Utility.bytesToHex(XBeeConfigVars.operatingChannel));
+                networkId.setText("Network ID: "+Utility.bytesToHex(XBeeConfigVars.networkId));
+            }
+        });
     }
 
     public StartFragment() {

@@ -95,7 +95,7 @@ public class  UsbHostWrapper {
                     //findSerialPortDevice();
 
                     connection = usbManager.openDevice(device);
-                    setConnectionStatus(true);
+
                     new ConnectionThread().run();
                 } else // User not accepted our USB connection. Send an Intent to the Main Activity
                 {
@@ -212,6 +212,7 @@ public class  UsbHostWrapper {
                     serialPort.getDSR(dsrCallback);
                     // Everything went as expected. Send an intent to MainActivity
 
+                    setConnectionStatus(true);
                 } else {
                     // Serial port could not be opened, maybe an I/O error or if CDC driver was chosen, it does not really fit
                     // Send an Intent to Main Activity
