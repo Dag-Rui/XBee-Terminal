@@ -2,7 +2,9 @@ package no.daffern.xbeecommunication.Audio;
 
 import android.media.AudioFormat;
 import android.media.AudioManager;
+import android.media.AudioRecord;
 import android.media.AudioTrack;
+import android.util.Log;
 
 import com.purplefrog.speexjni.FrequencyBand;
 import com.purplefrog.speexjni.SpeexDecoder;
@@ -12,11 +14,15 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import no.daffern.xbeecommunication.MainActivity;
+
 /**
  * Created by Daffern on 20.09.2016.
  */
 
 public class PlaybackStreamHelper {
+
+    private final static String TAG = PlaybackStreamHelper.class.getSimpleName();
 
     int streamType = AudioManager.STREAM_MUSIC;
     int sampleRate = 8000;
@@ -41,8 +47,12 @@ public class PlaybackStreamHelper {
         speexDecoder = new SpeexDecoder(FrequencyBand.NARROW_BAND);
 
 
-        audioTrack = new AudioTrack(streamType, sampleRate, channel, audioFormat, 160, AudioTrack.MODE_STREAM);
+        audioTrack = new AudioTrack(streamType, sampleRate, channel, audioFormat, 320, AudioTrack.MODE_STREAM);
 
+        if (audioTrack.getState() != AudioRecord.STATE_INITIALIZED){
+            MainActivity.makeToast("Could not initialize AudioTrack");
+            Log.e(TAG,"Could not initialize AudioTrack");
+        }
 
         Thread playbackThread = new Thread(new Runnable() {
             @Override

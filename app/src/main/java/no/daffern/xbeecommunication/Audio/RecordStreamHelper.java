@@ -11,6 +11,8 @@ import com.purplefrog.speexjni.FrequencyBand;
 import com.purplefrog.speexjni.SpeexEncoder;
 
 
+import no.daffern.xbeecommunication.MainActivity;
+
 import static no.daffern.xbeecommunication.XBee.XBeeFrameBuffer.bufferSize;
 
 /**
@@ -25,8 +27,8 @@ public class RecordStreamHelper {
     int channel = AudioFormat.CHANNEL_IN_MONO;
     int audioFormat = AudioFormat.ENCODING_PCM_16BIT;
 
-    int bufferSize;
-    short[] buffer;
+    final int speexFrameSize = 160; //The speex framesize for narrowband in shorts (320 bytes)
+    short[] buffer = new short[speexFrameSize];;
 
     AudioRecord recorder;
     SpeexEncoder speexEncoder;
@@ -35,29 +37,39 @@ public class RecordStreamHelper {
     boolean recording = false;
 
     SpeexFrameListener speexFrameListener;
+    static AudioAmplitudePeakListener audioAmplitudePeakListener;
+
+    double currentAmplitude = 0;
+    static double peakAmplitude = 0;
+    static long peakAmplitudeTime = 0;
 
     public void setSpeexFrameListener(SpeexFrameListener speexFrameListener){
         this.speexFrameListener = speexFrameListener;
     }
+    public static void setAudioAmplitudePeakListener(AudioAmplitudePeakListener listener){
+        audioAmplitudePeakListener = listener;
+    }
 
 
-    public void start(){
+    public void start(int quality){
 
-        bufferSize = AudioRecord.getMinBufferSize(sampleRate, channel, audioFormat);
-        buffer = new short[160];
+        int bufferSize = AudioRecord.getMinBufferSize(sampleRate, channel, audioFormat);
 
         recorder = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, channel, audioFormat, bufferSize);
 
         if (recorder.getState() != AudioRecord.STATE_INITIALIZED){
+            MainActivity.makeToast("Could not initialize audio recorder");
             Log.e(TAG,"Could not initialize AudioRecord");
         }
+        
+        AcousticEchoCanceler acousticEchoCanceler = AcousticEchoCanceler.create(recorder.getAudioSessionId());
+        
+        if (acousticEchoCanceler != null && !acousticEchoCanceler.getEnabled()){
+            MainActivity.makeToast("Could not enable AcousticEchoCanceler");
+            Log.e(TAG,"Could not enable AcousticEchoCanceler");
+        }
 
-        //
-        AcousticEchoCanceler.create(recorder.getAudioSessionId());
-
-
-        speexEncoder = new SpeexEncoder(FrequencyBand.NARROW_BAND,1);
-
+        speexEncoder = new SpeexEncoder(FrequencyBand.NARROW_BAND, quality);
 
         recordThread = new RecordThread();
         Thread t = new Thread(recordThread);
@@ -79,9 +91,18 @@ public class RecordStreamHelper {
 
                 recorder.read(buffer,0, buffer.length);
 
+                if (audioAmplitudePeakListener != null) {
+                    currentAmplitude = measureMagnitude(buffer);
+                    if (currentAmplitude > peakAmplitude) {
+                        peakAmplitude = currentAmplitude;
+                        peakAmplitudeTime = System.currentTimeMillis();
+                        audioAmplitudePeakListener.onAudioAmplitudePeak(peakAmplitude,peakAmplitudeTime);
+                    }
+                }
+
                 byte[] encoded = speexEncoder.encode(buffer);
 
-                speexFrameListener.onFrameRecorded(encoded);
+                speexFrameListener.onFrameEncoded(encoded);
             }
         }
         public void cancel(){
@@ -92,9 +113,24 @@ public class RecordStreamHelper {
         }
     };
 
+    private double measureMagnitude(short[] samples){
+        double sum = 0;
 
+        for (short s : samples)
+            sum += s*s;
+
+        double amplitude = Math.sqrt(sum / samples.length);
+        return amplitude;
+    }
+    public static void resetPeakAmplitude(){
+        peakAmplitudeTime = 0;
+        peakAmplitude = 0;
+    }
 
     public interface SpeexFrameListener{
-        void onFrameRecorded(byte[] frame);
+        void onFrameEncoded(byte[] frame);
+    }
+    public interface AudioAmplitudePeakListener{
+        void onAudioAmplitudePeak(double amplitude, long time);
     }
 }

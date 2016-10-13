@@ -1,6 +1,7 @@
 package no.daffern.xbeecommunication;
 
 
+import android.content.Context;
 import android.content.Intent;
 import android.hardware.usb.UsbAccessory;
 import android.hardware.usb.UsbDevice;
@@ -21,9 +22,9 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-import no.daffern.xbeecommunication.Audio.RecordHelper;
 import no.daffern.xbeecommunication.Fragments.ChatFragment;
 import no.daffern.xbeecommunication.Fragments.NodeListFragment;
+import no.daffern.xbeecommunication.Fragments.PerformanceFragment;
 import no.daffern.xbeecommunication.Fragments.SmsFragment;
 import no.daffern.xbeecommunication.Fragments.StartFragment;
 import no.daffern.xbeecommunication.Fragments.VoiceFragment;
@@ -42,31 +43,34 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    UsbAccessoryWrapper usbAccessoryWrapper;
-    UsbHostWrapper usbHostWrapper;
+    private UsbAccessoryWrapper usbAccessoryWrapper;
+    private UsbHostWrapper usbHostWrapper;
 
-    ChatFragment chatFragment;
-    NodeListFragment nodeListFragment;
-    StartFragment startFragment;
-    VoiceFragment voiceFragment;
-    SmsFragment smsFragment;
+    private ChatFragment chatFragment;
+    private NodeListFragment nodeListFragment;
+    private StartFragment startFragment;
+    private VoiceFragment voiceFragment;
+    private SmsFragment smsFragment;
 
+    private PerformanceFragment performanceFragment;
 
-    TextView isConnectedText;
-    Toolbar toolbar;
-
-
-    XBeeFrameBuffer xBeeFrameBuffer;
-    XBeeService xBeeService;
+    private TextView isConnectedText;
+    private Toolbar toolbar;
 
 
-    enum ConnectedState {
+    private XBeeFrameBuffer xBeeFrameBuffer;
+    private XBeeService xBeeService;
+
+    private static Context context;
+    private static MainActivity mainActivity;
+
+    private enum ConnectedState {
         notConnected,
         connectedAsHost,
         connectedAsAccessory
     }
 
-    ConnectedState connectedState = ConnectedState.notConnected;
+    private ConnectedState connectedState = ConnectedState.notConnected;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -74,16 +78,8 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
 
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
 
-    static boolean init = false;
 
     //If the application is already open, the intent for usb will be received here
     @Override
@@ -126,10 +122,9 @@ public class MainActivity extends AppCompatActivity {
         initFragments();
         initUsbHandlers();
 
-        RecordHelper recordHelper = new RecordHelper();
-        recordHelper.findAudioRecord();
 
-
+        mainActivity = this;
+        context = getBaseContext();
     }
 
 
@@ -142,9 +137,36 @@ public class MainActivity extends AppCompatActivity {
 
         setSupportActionBar(toolbar);
 
+
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
+
+                switch (item.getItemId()) {
+                    case R.id.menu_performance:
+                        if (item.isChecked()) {
+                            item.setChecked(false);
+
+                            FragmentTransaction fr = getSupportFragmentManager().beginTransaction();
+                            fr.remove(performanceFragment);
+                            fr.commit();
+
+                        } else {
+                            item.setChecked(true);
+
+                            performanceFragment = new PerformanceFragment();
+                            FragmentTransaction fr = getSupportFragmentManager().beginTransaction();
+                            fr.add(R.id.fragment_container2, performanceFragment, "performanceFragment");
+
+                            //fr.addToBackStack(startFragment.getClass().getSimpleName());
+                            fr.commit();
+
+
+                        }
+
+
+                        break;
+                }
 
                 return false;
             }
@@ -157,7 +179,6 @@ public class MainActivity extends AppCompatActivity {
                         onBackPressed();
                     }
                 }
-
         );
 
     }
@@ -169,8 +190,9 @@ public class MainActivity extends AppCompatActivity {
         voiceFragment = new VoiceFragment();
         smsFragment = new SmsFragment();
 
+
         FragmentTransaction fr = getSupportFragmentManager().beginTransaction();
-        fr.add(R.id.fragment_container, startFragment, "nodeList");
+        fr.add(R.id.fragment_container, startFragment, "startFragment");
         //fr.addToBackStack(startFragment.getClass().getSimpleName());
         fr.commit();
 
@@ -205,6 +227,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+
     private boolean handleOutgoingMessage(byte[] bytes) {
         if (connectedState == ConnectedState.connectedAsAccessory) {
             usbAccessoryWrapper.write(bytes);
@@ -213,12 +236,9 @@ public class MainActivity extends AppCompatActivity {
             usbHostWrapper.write(bytes);
             return true;
         } else {
-            this.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(MainActivity.this, "Not Connected", Toast.LENGTH_SHORT).show();
-                }
-            });
+
+            makeToast("USB not Connected");
+
             return false;
         }
     }
@@ -258,14 +278,10 @@ public class MainActivity extends AppCompatActivity {
                             connectedState = ConnectedState.notConnected;
                             isConnectedText.setText(R.string.notConnected);
                         }
-
-
                     }
                 });
-
             }
         });
-
 
         usbHostWrapper = new UsbHostWrapper(this);
         usbHostWrapper.setUsbListener(new UsbListener() {
@@ -296,7 +312,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void bufferFrame(byte[] bytes) {
+    private void bufferFrame(byte[] bytes) {
         ArrayList<XBeeFrame> frames;
         try {
             frames = xBeeFrameBuffer.putAndCheck(bytes);
@@ -357,21 +373,54 @@ public class MainActivity extends AppCompatActivity {
         }*/
     }
 
-    private void replaceFragment(Fragment fragment, boolean addToBackStack) {
-        String backStateName = fragment.getClass().getName();
+    public static void replaceFragment(final Fragment fragment, final boolean addToBackStack) {
+        mainActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                System.out.println("entering replaceFramgnet");
+                String backStateName = fragment.getClass().getName();
 
-        FragmentManager manager = getSupportFragmentManager();
+                FragmentManager manager = mainActivity.getSupportFragmentManager();
 
-        boolean fragmentPopped = manager.popBackStackImmediate(backStateName, 0);
+                boolean fragmentPopped = manager.popBackStackImmediate(backStateName, 0);
 
-        if (!fragmentPopped) { //fragment not in back stack, create it.
-            FragmentTransaction ft = manager.beginTransaction();
-            ft.replace(R.id.fragment_container, fragment);
-            if (addToBackStack)
-                ft.addToBackStack(backStateName);
-            ft.commit();
+                if (!fragmentPopped) { //fragment not in back stack, create it.
+                    FragmentTransaction ft = manager.beginTransaction();
+                    ft.replace(R.id.fragment_container, fragment);
+                    if (addToBackStack)
+                        ft.addToBackStack(backStateName);
+                    ft.commit();
+                }
+
+            }
+        });
+
+    }
+
+    //static method to make a Toast(notice message on the screen)
+    private static long lastToastTime = 0;
+    private static String lastToast;
+
+    public static void makeToast(final String toast) {
+
+        if (System.currentTimeMillis() > lastToastTime + 5000 || !lastToast.equals(toast)) {
+            lastToastTime = System.currentTimeMillis();
+            lastToast = toast;
+
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(mainActivity, toast, Toast.LENGTH_LONG).show();
+                }
+            });
         }
     }
+
+    public static Context getContext(){
+        return context;
+    }
+
+
 /*
     private void switchFragment(Fragment fragment) {
 

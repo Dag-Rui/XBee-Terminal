@@ -21,15 +21,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import no.daffern.xbeecommunication.Listener.UsbListener;
+import no.daffern.xbeecommunication.MainActivity;
 
 /**
  * Created by Daffern on 10.06.2016.
  */
-public class  UsbHostWrapper {
+public class UsbHostWrapper {
 
     private static final String ACTION_USB_HOST_PERMISSION = "com.android.example.USB_HOST_PERMISSION";
-
-
 
 
     private static final int BAUD_RATE = 57600;
@@ -67,6 +66,12 @@ public class  UsbHostWrapper {
     private UsbSerialInterface.UsbCTSCallback ctsCallback = new UsbSerialInterface.UsbCTSCallback() {
         @Override
         public void onCTSChanged(boolean state) {
+
+            if (state)
+                MainActivity.makeToast("CTS FALSE");
+            else
+                MainActivity.makeToast("CTS TRUE");
+
             //Not used
         }
     };
@@ -77,6 +82,11 @@ public class  UsbHostWrapper {
     private UsbSerialInterface.UsbDSRCallback dsrCallback = new UsbSerialInterface.UsbDSRCallback() {
         @Override
         public void onDSRChanged(boolean state) {
+            if (state)
+                MainActivity.makeToast("DSR FALSE");
+            else
+                MainActivity.makeToast("DSR TRUE");
+
             //Not used
         }
     };
@@ -130,7 +140,7 @@ public class  UsbHostWrapper {
         serialPortConnected = connected;
     }
 
-    public void setUsbListener(UsbListener usbListener){
+    public void setUsbListener(UsbListener usbListener) {
         this.usbListener = usbListener;
     }
 

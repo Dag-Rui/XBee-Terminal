@@ -9,7 +9,7 @@
     <string name="SMS_SENT_TO_REMOTE">Sms sent to remote node</string>
     <string name="SMS_RECEIVED_BY_REMOTE">Sms received by remote node</string>
     <string name="REMOTE_MOBILE_SENT_SMS">Remote node sent the SMS</string>
-    <string name="TARGET_MOBILE_RECEIVED_SMS">SMS has been received by the phone number</string>
+    <string name="TARGET_MOBILE_RECEIVED_SMS">SMS has been received by the target phone</string>
 
     <string name="REMOTE_MOBILE_ERROR_GENERIC_FAILURE">Remote node failed to send the SMS</string>
     <string name="REMOTE_MOBILE_RESULT_ERROR_NO_SERVICE">Remote node has no mobile service</string>

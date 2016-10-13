@@ -34,6 +34,15 @@ public class Node {
     public String toString() {
         return "{64 bit address is: " + Utility.bytesToHex(address64) + "; 16 bit address is: " + Utility.bytesToHex(address16) + "; Name is: " + nodeIdentifier + "}";
     }
+    //returns the nodeIdentifier, or the address if not available
+    public String getNodeIdentifier(){
+        if (nodeIdentifier != null && nodeIdentifier.length() > 0){
+            return nodeIdentifier;
+        }else if (address64 != null && address64.length > 0){
+            return Utility.bytesToHex(address64);
+        }
+        else return "";
+    }
 
     //HashCode used in mapping the Node
     public int getKey() {

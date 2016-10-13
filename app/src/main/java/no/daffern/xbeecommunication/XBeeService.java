@@ -52,19 +52,20 @@ public class XBeeService {
 
     }
 
-    public void setMessageListener(MessageListener messageListener){
+    public void setMessageListener(MessageListener messageListener) {
         this.messageListener = messageListener;
     }
+
     public boolean sendFrame(XBeeFrame xBeeFrame) {
         return messageListener.onMessageReceived(xBeeFrame.generateFrame());
     }
 
+    //Only called from the MainActivity. Handles frames by keeping track of nodes and distributing to each fragment
     public void receiveFrame(XBeeFrame frame) {
 
         switch (frame.getFrameType()) {
             case XBeeFrameType.XBEE_RECEIVE: {
 
-                Log.e(TAG, "Received a Receive frame");
 
                 XBeeReceiveFrame receiveFrame = (XBeeReceiveFrame) frame;
 
@@ -83,27 +84,27 @@ public class XBeeService {
                 }
 
                 switch (receiveFrame.getDataType()) {
-                    case XBeeFrameType.APP_CHAT_MESSAGE:
+                    case DataTypes.APP_CHAT_MESSAGE:
                         for (XBeeFrameListener xBeeFrameListener : xBeeFrameListeners) {
                             xBeeFrameListener.onChatMessage(receiveFrame);
                         }
                         break;
-                    case XBeeFrameType.APP_SMS_MESSAGE:
+                    case DataTypes.APP_SMS_MESSAGE:
                         for (XBeeFrameListener xBeeFrameListener : xBeeFrameListeners) {
                             xBeeFrameListener.onSmsMessage(receiveFrame);
                         }
                         break;
-                    case XBeeFrameType.APP_SMS_STATUS_MESSAGE:
+                    case DataTypes.APP_SMS_STATUS_MESSAGE:
                         for (XBeeFrameListener xBeeFrameListener : xBeeFrameListeners) {
                             xBeeFrameListener.onSmsStatusMessage(receiveFrame);
                         }
                         break;
-                    case XBeeFrameType.APP_VOICE_MESSAGE:
+                    case DataTypes.APP_VOICE_MESSAGE:
                         for (XBeeFrameListener xBeeFrameListener : xBeeFrameListeners) {
                             xBeeFrameListener.onVoiceMessage(receiveFrame);
                         }
                         break;
-                    case XBeeFrameType.APP_VOICE_STATUS_MESSAGE:
+                    case DataTypes.APP_VOICE_STATUS_MESSAGE:
                         for (XBeeFrameListener xBeeFrameListener : xBeeFrameListeners) {
                             xBeeFrameListener.onVoiceStatusMessage(receiveFrame);
                         }
@@ -116,7 +117,7 @@ public class XBeeService {
 
             case XBeeFrameType.XBEE_TRANSMIT_STATUS:
 
-                Log.e(TAG, "Received a Transmit Status");
+                Log.e(TAG, "Received a Transmit Status Frame");
 
 
                 XBeeStatusFrame status = (XBeeStatusFrame) frame;
@@ -130,7 +131,7 @@ public class XBeeService {
 
             case XBeeFrameType.XBEE_AT_COMMAND_RESPONSE:
 
-                Log.e(TAG, "Received an AT Command Response");
+                Log.e(TAG, "Received an AT Command Response Frame");
 
 
                 XBeeATCommandResponseFrame response = (XBeeATCommandResponseFrame) frame;
@@ -152,6 +153,10 @@ public class XBeeService {
                     }
                 }
                 break;
+            default:
+                Log.e(TAG, "Received an unhandled XBee Frame, with frame type: " + frame.getFrameType());
+                break;
+
         }
 
     }
@@ -164,6 +169,9 @@ public class XBeeService {
     public void addXBeeFrameListener(XBeeFrameListener xBeeFrameListener) {
         xBeeFrameListeners.add(xBeeFrameListener);
 
+    }
+    public void removeXBeeFrameListener(XBeeFrameListener xBeeFrameListener){
+        xBeeFrameListeners.remove(xBeeFrameListener);
     }
 
 

@@ -29,11 +29,6 @@ public class NodeListAdapter extends ArrayAdapter<Node> {
     private LinkedHashMap<Integer, Node> nodes;
     private ListView nodeView;
 
-    private int maxCount = 100;
-
-    private View.OnClickListener chatListener;
-    private View.OnClickListener smsListener;
-    private View.OnClickListener callListener;
 
     private NodeListListener nodeListListener;
 
@@ -70,7 +65,7 @@ public class NodeListAdapter extends ArrayAdapter<Node> {
 
         Button chatButton = (Button) row.findViewById(R.id.button_chat);
         Button smsButton = (Button) row.findViewById(R.id.button_sms);
-        Button callButton = (Button) row.findViewById(R.id.button_call);
+        Button callButton = (Button) row.findViewById(R.id.button_voice);
 
         chatButton.setOnClickListener(onChatClickListener);
         smsButton.setOnClickListener(onSmsClickListener);
@@ -88,13 +83,6 @@ public class NodeListAdapter extends ArrayAdapter<Node> {
         return row;
     }
 
-    public void setMaxCount(int maxCount) {
-        this.maxCount = maxCount;
-    }
-
-    public Bitmap decodeToBitmap(byte[] decodedByte) {
-        return BitmapFactory.decodeByteArray(decodedByte, 0, decodedByte.length);
-    }
 
     public View.OnClickListener onChatClickListener = new View.OnClickListener() {
         @Override

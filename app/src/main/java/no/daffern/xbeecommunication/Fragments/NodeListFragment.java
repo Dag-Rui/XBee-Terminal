@@ -59,6 +59,7 @@ public class NodeListFragment extends Fragment {
                 xBeeService.sendFrame(frame);
 
                 refreshButton.setEnabled(false);
+                refreshButton.setText("Refreshing...");
 
                 //button enabled after the timeoutdelay
                 final Handler handler = new Handler();
@@ -66,6 +67,7 @@ public class NodeListFragment extends Fragment {
                     @Override
                     public void run() {
                         refreshButton.setEnabled(true);
+                        refreshButton.setText("Refresh");
 
                     }
 
@@ -92,6 +94,8 @@ public class NodeListFragment extends Fragment {
     }
 
     public void updateUI(){
+        if (getActivity() == null)
+            return;
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {

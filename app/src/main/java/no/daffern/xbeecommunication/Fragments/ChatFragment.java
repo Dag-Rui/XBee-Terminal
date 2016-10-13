@@ -17,17 +17,16 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 import no.daffern.xbeecommunication.Adapter.ChatAdapter;
+import no.daffern.xbeecommunication.DataTypes;
 import no.daffern.xbeecommunication.Listener.XBeeFrameListener;
 import no.daffern.xbeecommunication.Model.ChatMessage;
 import no.daffern.xbeecommunication.Model.Node;
 import no.daffern.xbeecommunication.R;
 import no.daffern.xbeecommunication.Utility;
-import no.daffern.xbeecommunication.XBee.Frames.XBeeATCommandResponseFrame;
 import no.daffern.xbeecommunication.XBee.Frames.XBeeReceiveFrame;
 import no.daffern.xbeecommunication.XBee.Frames.XBeeStatusFrame;
 import no.daffern.xbeecommunication.XBee.Frames.XBeeTransmitFrame;
 import no.daffern.xbeecommunication.XBeeService;
-import no.daffern.xbeecommunication.XBee.XBeeFrameType;
 
 /**
  * Created by Daffern on 27.05.2016.
@@ -102,16 +101,16 @@ public class ChatFragment extends Fragment {
 
                 int frameId = frame.getFrameId();
 
-                for (ChatMessage chatMessage : unAcknowledgedFrames) {
-                    if (chatMessage.frameId == frameId) {
+                for (int i = unAcknowledgedFrames.size() - 1; i >= 0 ; i--) {
+                    if (unAcknowledgedFrames.get(i).frameId == frameId) {
 
                         if (frame.getDeliveryStatus() == XBeeStatusFrame.SUCCESS) {
-                            chatMessage.status = "Sent!";
+                            unAcknowledgedFrames.get(i).status = "Sent!";
                         } else {
-                            chatMessage.status = "Failed with code: " + frame.getDeliveryStatus();
+                            unAcknowledgedFrames.get(i).status = "Failed with code: " + frame.getDeliveryStatus();
                         }
                         updateUI();
-                        unAcknowledgedFrames.remove(chatMessage);
+                        unAcknowledgedFrames.remove(i);
                         break;
                     }
                 }
@@ -128,6 +127,8 @@ public class ChatFragment extends Fragment {
         }
     }
     public void updateUI(){
+        if (getActivity() == null)
+            return;
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -141,10 +142,10 @@ public class ChatFragment extends Fragment {
     public void sendMessage(String message) {
         byte[] bytes = message.getBytes();
 
-        XBeeTransmitFrame transmitFrame = new XBeeTransmitFrame(XBeeFrameType.APP_CHAT_MESSAGE);
+        XBeeTransmitFrame transmitFrame = new XBeeTransmitFrame(DataTypes.APP_CHAT_MESSAGE);
         transmitFrame.setRfData(bytes);
         transmitFrame.setAddress64(currentNode.address64);
-        transmitFrame.setDataType(XBeeFrameType.APP_CHAT_MESSAGE);
+        transmitFrame.setDataType(DataTypes.APP_CHAT_MESSAGE);
 
         //check if send was successful
         if (xBeeService.sendFrame(transmitFrame)) {
