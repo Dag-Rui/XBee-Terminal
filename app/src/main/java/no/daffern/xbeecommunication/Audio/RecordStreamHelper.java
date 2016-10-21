@@ -75,6 +75,10 @@ public class RecordStreamHelper {
         Thread t = new Thread(recordThread);
         t.start();
     }
+
+    public void setQuality(int quality){
+        speexEncoder = new SpeexEncoder(FrequencyBand.NARROW_BAND, quality);
+    }
     public void stop(){
         recordThread.cancel();
     }

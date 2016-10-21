@@ -97,6 +97,7 @@ public class VoiceFragment extends Fragment {
                         MainActivity.replaceFragment(VoiceFragment.this, true);
                         MainActivity.makeToast("Call from: " + node.getNodeIdentifier());
 
+                        /*
                         //play the calling sound
                         final MediaPlayer mediaPlayer = MediaPlayer.create(MainActivity.getContext(),R.raw.nokia);
                         mediaPlayer.start();
@@ -105,7 +106,7 @@ public class VoiceFragment extends Fragment {
                             public void onCompletion(MediaPlayer mp) {
                                 mediaPlayer.release();
                             }
-                        });
+                        });*/
 
                     }
                     //if already in call, auto decline
@@ -200,6 +201,22 @@ public class VoiceFragment extends Fragment {
             }
         });
 
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                recordStreamHelper.setQuality(seekBar.getProgress()+1);
+            }
+        });
 
         recordStreamHelper = new RecordStreamHelper();
 
@@ -258,7 +275,6 @@ public class VoiceFragment extends Fragment {
                 public void run() {
 
                     nodeText.setText("Call to: " + currentNode.getNodeIdentifier());
-
 
                     switch (callState){
                         case none:
