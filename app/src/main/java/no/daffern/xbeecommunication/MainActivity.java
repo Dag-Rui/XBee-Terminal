@@ -61,8 +61,8 @@ public class MainActivity extends AppCompatActivity {
     private XBeeFrameBuffer xBeeFrameBuffer;
     private XBeeService xBeeService;
 
-    private static Context context;
-    private static MainActivity mainActivity;
+    public static Context context;
+    public static MainActivity mainActivity;
 
     private enum ConnectedState {
         notConnected,
@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
             UsbAccessory usbAccessory = intent.getParcelableExtra(UsbManager.EXTRA_ACCESSORY);
         }
 
-        usbAccessoryWrapper.tryOpenUsbAccessory();
+
 
     }
 
@@ -440,19 +440,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-        if (connectedState == ConnectedState.connectedAsAccessory) {
-            usbAccessoryWrapper.tryOpenUsbAccessory();
-        } else {
 
-        }
+        usbHostWrapper.onResume();
+
+        //usbAccessoryWrapper.onResume();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        if (connectedState == ConnectedState.connectedAsHost) {
 
-        }
 
     }
 

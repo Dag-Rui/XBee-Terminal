@@ -11,6 +11,8 @@ import com.purplefrog.speexjni.FrequencyBand;
 import com.purplefrog.speexjni.SpeexEncoder;
 
 
+import java.util.ArrayList;
+
 import no.daffern.xbeecommunication.MainActivity;
 
 import static no.daffern.xbeecommunication.XBee.XBeeFrameBuffer.bufferSize;
@@ -77,11 +79,16 @@ public class RecordStreamHelper {
     }
 
     public void setQuality(int quality){
+        if (quality > 10 || quality < 0){
+            MainActivity.makeToast("Wrong quality set for some reason");
+        }else
         speexEncoder = new SpeexEncoder(FrequencyBand.NARROW_BAND, quality);
     }
     public void stop(){
         recordThread.cancel();
     }
+
+
 
     private class RecordThread implements Runnable {
 

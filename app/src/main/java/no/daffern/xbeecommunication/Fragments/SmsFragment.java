@@ -23,6 +23,7 @@ import java.util.Map;
 
 import no.daffern.xbeecommunication.DataTypes;
 import no.daffern.xbeecommunication.Listener.XBeeFrameListener;
+import no.daffern.xbeecommunication.MainActivity;
 import no.daffern.xbeecommunication.Model.Node;
 import no.daffern.xbeecommunication.Model.SmsMessage;
 import no.daffern.xbeecommunication.R;
@@ -38,8 +39,10 @@ public class SmsFragment extends Fragment {
 
     private final static String TAG = SmsFragment.class.getSimpleName();
 
-    Node node;
+    Node currentNode;
     XBeeService xBeeService;
+
+    TextView nodeText;
 
     EditText phoneField;
     EditText smsTextField;
@@ -78,8 +81,9 @@ public class SmsFragment extends Fragment {
                 SmsMessage smsMessage = new SmsMessage(number, message, false, SmsMessage.SMS_RECEIVED_BY_REMOTE, smsId);
                 smsMap.put(smsId, smsMessage);
 
+                Node node = xBeeService.getNodeMap().get(key);
 
-                sendSms(smsId, number, message);
+                sendSms(node, smsId, number, message);
             }
 
             @Override
@@ -88,7 +92,7 @@ public class SmsFragment extends Fragment {
 
                 byte[] rfData = frame.getRfData();
                 byte smsId = rfData[0];
-                byte status = rfData[1];
+                final byte status = rfData[1];
 
                 Map<Byte, SmsMessage> smsMap = smsMessageMap.get(Node.getKey(frame.getAddress64()));
                 if (smsMap == null) {
@@ -100,36 +104,38 @@ public class SmsFragment extends Fragment {
                 smsMessage.setStatus(status);
 
 
-
-                switch (status) {
-                    case SmsMessage.REMOTE_MOBILE_SENT_SMS:
-                        statusText.append(getString(R.string.REMOTE_MOBILE_SENT_SMS));
-                        break;
-                    case SmsMessage.REMOTE_MOBILE_ERROR_GENERIC_FAILURE:
-                        statusText.append(getString(R.string.REMOTE_MOBILE_ERROR_GENERIC_FAILURE));
-                        break;
-                    case SmsMessage.REMOTE_MOBILE_RESULT_ERROR_NO_SERVICE:
-                        statusText.append(getString(R.string.REMOTE_MOBILE_RESULT_ERROR_NO_SERVICE));
-                        break;
-                    case SmsMessage.REMOTE_MOBILE_RESULT_ERROR_NULL_PDU:
-                        statusText.append(getString(R.string.REMOTE_MOBILE_RESULT_ERROR_NULL_PDU));
-                        break;
-                    case SmsMessage.REMOTE_MOBILE_RESULT_ERROR_RADIO_OFF:
-                        statusText.append(getString(R.string.REMOTE_MOBILE_RESULT_ERROR_RADIO_OFF));
-                        break;
-                    case SmsMessage.TARGET_MOBILE_RECEIVED_SMS:
-                        statusText.append(getString(R.string.TARGET_MOBILE_RECEIVED_SMS));
-                        break;
-                }
-
-                statusText.append("\n");
+                MainActivity.mainActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        switch (status) {
+                            case SmsMessage.REMOTE_MOBILE_SENT_SMS:
+                                statusText.append(getString(R.string.REMOTE_MOBILE_SENT_SMS));
+                                break;
+                            case SmsMessage.REMOTE_MOBILE_ERROR_GENERIC_FAILURE:
+                                statusText.append(getString(R.string.REMOTE_MOBILE_ERROR_GENERIC_FAILURE));
+                                break;
+                            case SmsMessage.REMOTE_MOBILE_RESULT_ERROR_NO_SERVICE:
+                                statusText.append(getString(R.string.REMOTE_MOBILE_RESULT_ERROR_NO_SERVICE));
+                                break;
+                            case SmsMessage.REMOTE_MOBILE_RESULT_ERROR_NULL_PDU:
+                                statusText.append(getString(R.string.REMOTE_MOBILE_RESULT_ERROR_NULL_PDU));
+                                break;
+                            case SmsMessage.REMOTE_MOBILE_RESULT_ERROR_RADIO_OFF:
+                                statusText.append(getString(R.string.REMOTE_MOBILE_RESULT_ERROR_RADIO_OFF));
+                                break;
+                            case SmsMessage.TARGET_MOBILE_RECEIVED_SMS:
+                                statusText.append(getString(R.string.TARGET_MOBILE_RECEIVED_SMS));
+                                break;
+                        }
+                        statusText.append("\n");
+                    }
+                });
 
             }
 
             @Override
             public void onTransmitStatus(XBeeStatusFrame xBeeStatusFrame) {
-                //statusText.append();
-
+                //TODO check if xbee transfer was successful
             }
 
         });
@@ -143,31 +149,35 @@ public class SmsFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_sms, container, false);
     }
 
-    Activity activity;
+
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
 
-        activity = getActivity();
+
 
         initUI();
 
     }
 
     public void setCurrentNode(Node node) {
-        this.node = node;
+        this.currentNode = node;
     }
 
     private void initUI() {
-        phoneField = (EditText) getActivity().findViewById(R.id.phoneTextField);
-        smsTextField = (EditText) getActivity().findViewById(R.id.smsTextField);
-        statusText = (TextView) getActivity().findViewById(R.id.smsStatusText);
-        sendButton = (Button) getActivity().findViewById(R.id.sendButton);
+        nodeText = (TextView) getView().findViewById(R.id.nodeText);
+        phoneField = (EditText) getView().findViewById(R.id.phoneTextField);
+        smsTextField = (EditText) getView().findViewById(R.id.smsTextField);
+        statusText = (TextView) getView().findViewById(R.id.smsStatusText);
+        sendButton = (Button) getView().findViewById(R.id.sendButton);
 
+
+        nodeText.setText("Send SMS through: "+currentNode.getNodeIdentifier());
 
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 byte[] number = phoneField.getText().toString().getBytes();
                 byte[] message = smsTextField.getText().toString().getBytes();
 
@@ -186,10 +196,10 @@ public class SmsFragment extends Fragment {
                 }
 
 
-                Map<Byte, SmsMessage> smsMap = smsMessageMap.get(node.getKey());
+                Map<Byte, SmsMessage> smsMap = smsMessageMap.get(currentNode.getKey());
                 if (smsMap == null) {
                     smsMap = new HashMap<Byte, SmsMessage>();
-                    smsMessageMap.put(node.getKey(), smsMap);
+                    smsMessageMap.put(currentNode.getKey(), smsMap);
                 }
 
                 SmsMessage smsMessage = new SmsMessage(number, message, true, SmsMessage.SMS_SENT_TO_REMOTE);
@@ -203,9 +213,8 @@ public class SmsFragment extends Fragment {
                 System.arraycopy(number, 0, rfData, 2, number.length);//store the phone number
                 System.arraycopy(message, 0, rfData, number.length + 2, message.length);//store the message
 
-
                 XBeeTransmitFrame xBeeTransmitFrame = new XBeeTransmitFrame(DataTypes.APP_SMS_MESSAGE);
-                xBeeTransmitFrame.setAddress64(node.address64);
+                xBeeTransmitFrame.setAddress64(currentNode.address64);
                 xBeeTransmitFrame.setRfData(rfData);
 
 
@@ -216,7 +225,9 @@ public class SmsFragment extends Fragment {
     }
 
 
-    private void sendSms(final byte smsId, final String number, final String message) {
+    private void sendSms(final Node node, final byte smsId, final String number, final String message) {
+
+        final Activity activity = MainActivity.mainActivity;
 
         activity.runOnUiThread(new Runnable() {
             @Override
@@ -231,19 +242,19 @@ public class SmsFragment extends Fragment {
                         int resultCode = getResultCode();
                         switch (resultCode) {
                             case Activity.RESULT_OK:
-                                sendStatusMessage(smsId, SmsMessage.REMOTE_MOBILE_SENT_SMS);
+                                sendStatusMessage(node, smsId, SmsMessage.REMOTE_MOBILE_SENT_SMS);
                                 break;
                             case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
-                                sendStatusMessage(smsId, SmsMessage.REMOTE_MOBILE_ERROR_GENERIC_FAILURE);
+                                sendStatusMessage(node,smsId, SmsMessage.REMOTE_MOBILE_ERROR_GENERIC_FAILURE);
                                 break;
                             case SmsManager.RESULT_ERROR_NO_SERVICE:
-                                sendStatusMessage(smsId, SmsMessage.REMOTE_MOBILE_RESULT_ERROR_NO_SERVICE);
+                                sendStatusMessage(node,smsId, SmsMessage.REMOTE_MOBILE_RESULT_ERROR_NO_SERVICE);
                                 break;
                             case SmsManager.RESULT_ERROR_NULL_PDU:
-                                sendStatusMessage(smsId, SmsMessage.REMOTE_MOBILE_RESULT_ERROR_NULL_PDU);
+                                sendStatusMessage(node,smsId, SmsMessage.REMOTE_MOBILE_RESULT_ERROR_NULL_PDU);
                                 break;
                             case SmsManager.RESULT_ERROR_RADIO_OFF:
-                                sendStatusMessage(smsId, SmsMessage.REMOTE_MOBILE_RESULT_ERROR_RADIO_OFF);
+                                sendStatusMessage(node,smsId, SmsMessage.REMOTE_MOBILE_RESULT_ERROR_RADIO_OFF);
                                 break;
                         }
                     }
@@ -256,7 +267,7 @@ public class SmsFragment extends Fragment {
 
                     @Override
                     public void onReceive(Context context, Intent intent) {
-                        sendStatusMessage(smsId, SmsMessage.TARGET_MOBILE_RECEIVED_SMS);
+                        sendStatusMessage(node, smsId, SmsMessage.TARGET_MOBILE_RECEIVED_SMS);
                     }
 
                 }, new IntentFilter(SMS_DELIVERED));
@@ -273,7 +284,7 @@ public class SmsFragment extends Fragment {
 
     }
 
-    private void sendStatusMessage(byte smsId, byte status) {
+    private void sendStatusMessage(Node node, byte smsId, byte status) {
 
         XBeeTransmitFrame xBeeTransmitFrame = new XBeeTransmitFrame(DataTypes.APP_SMS_STATUS_MESSAGE);
         xBeeTransmitFrame.setAddress64(node.address64);

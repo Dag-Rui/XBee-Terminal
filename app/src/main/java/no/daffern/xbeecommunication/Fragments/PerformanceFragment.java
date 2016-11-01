@@ -60,7 +60,7 @@ public class PerformanceFragment extends Fragment {
     TextView peakTimeText;
 
     boolean synced = false;
-    long deviceGpsTimeDifference = 0;
+    static long deviceGpsTimeDifference = 0;
     long gpsTime = 0;
 
     Thread timeThread;

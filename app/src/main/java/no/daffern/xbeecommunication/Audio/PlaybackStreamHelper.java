@@ -43,11 +43,12 @@ public class PlaybackStreamHelper {
         frames.add(frame);
     }
 
+
     public void start(){
         speexDecoder = new SpeexDecoder(FrequencyBand.NARROW_BAND);
 
 
-        audioTrack = new AudioTrack(streamType, sampleRate, channel, audioFormat, 320, AudioTrack.MODE_STREAM);
+        audioTrack = new AudioTrack(streamType, sampleRate, channel, audioFormat, 160, AudioTrack.MODE_STREAM);
 
         if (audioTrack.getState() != AudioRecord.STATE_INITIALIZED){
             MainActivity.makeToast("Could not initialize AudioTrack");
@@ -67,7 +68,9 @@ public class PlaybackStreamHelper {
 
                     if (encoded != null){
 
+
                         short[] frame = speexDecoder.decode(encoded);
+
                         audioTrack.write(frame, 0, frame.length);
                     }
 

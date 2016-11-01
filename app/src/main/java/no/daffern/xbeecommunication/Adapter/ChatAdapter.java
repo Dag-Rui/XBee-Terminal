@@ -12,6 +12,7 @@ import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,10 +70,18 @@ public class ChatAdapter extends ArrayAdapter<ChatMessage> {
 
         TextView status = (TextView) row.findViewById(R.id.status);
         TextView comment = (TextView) row.findViewById(R.id.message);
+        TextView time = (TextView)row.findViewById(R.id.time);
 
         ChatMessage message = getItem(position);
         comment.setText(message.comment);
         status.setText(message.status);
+
+        if (message.time == 0){
+            time.setText("");
+        }else{
+            String sTime = new SimpleDateFormat("HH.mm.ss").format(message.time);
+            time.setText(sTime);
+        }
 
         if (message.status.equals(""))
             status.setVisibility(View.GONE);

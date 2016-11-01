@@ -213,7 +213,7 @@ public class UsbAccessoryWrapper  {
             while (outBuffer.size() > 0) {
                 if (outBuffer.peek() != null)
                     mOutputStream.write(outBuffer.poll());
-                    
+
 
             }
 
@@ -242,7 +242,7 @@ public class UsbAccessoryWrapper  {
                 try {
                     final int bytes = mInputStream.read(buffer);
 
-                    if (bytes > 0) { // The message is 4 bytes long
+                    if (bytes > 0) {
                         final byte[] newBuffer = new byte[bytes];
                         System.arraycopy(buffer, 0, newBuffer, 0, bytes);
 

@@ -51,7 +51,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:visibility="gone"
+        android:visibility="visible"
         android:id="@+id/pushToTalkContainer">
 
         <Button
@@ -69,15 +69,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="Quality (1-10)"
+            android:text="Quality (0-10)"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <SeekBar
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/seekBar"
-            android:max="9"
-            android:progress="1" />
+            android:max="10"
+            android:progress="2" />
 
     </LinearLayout>
 

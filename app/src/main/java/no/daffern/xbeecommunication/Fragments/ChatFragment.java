@@ -33,7 +33,6 @@ import no.daffern.xbeecommunication.XBeeService;
  */
 public class ChatFragment extends Fragment {
 
-    Button sendButton;
     EditText writeText;
 
     ListView chatView;
@@ -89,7 +88,7 @@ public class ChatFragment extends Fragment {
                     messages = new ArrayList<>();
                     messageMap.put(key, messages);
                 }
-                ChatMessage chatMessage = new ChatMessage(true, new String(frame.getRfData()), "", frame.getFrameId());
+                ChatMessage chatMessage = new ChatMessage(true, new String(frame.getRfData()), "", frame.getFrameId(), System.currentTimeMillis());
 
                 messages.add(chatMessage);
 
@@ -102,12 +101,16 @@ public class ChatFragment extends Fragment {
                 int frameId = frame.getFrameId();
 
                 for (int i = unAcknowledgedFrames.size() - 1; i >= 0 ; i--) {
-                    if (unAcknowledgedFrames.get(i).frameId == frameId) {
+
+                    ChatMessage chatMessage = unAcknowledgedFrames.get(i);
+
+                    if (chatMessage.frameId == frameId) {
 
                         if (frame.getDeliveryStatus() == XBeeStatusFrame.SUCCESS) {
-                            unAcknowledgedFrames.get(i).status = "Sent!";
+                            chatMessage.status = "Sent ";
+                            chatMessage.time = System.currentTimeMillis();
                         } else {
-                            unAcknowledgedFrames.get(i).status = "Failed with code: " + frame.getDeliveryStatus();
+                            chatMessage.status = "Failed with code: " + frame.getDeliveryStatus();
                         }
                         updateUI();
                         unAcknowledgedFrames.remove(i);
@@ -129,11 +132,14 @@ public class ChatFragment extends Fragment {
     public void updateUI(){
         if (getActivity() == null)
             return;
+
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (chatAdapter != null)
+                if (chatAdapter != null) {
+                    setCurrentNode(currentNode);
                     chatAdapter.notifyDataSetChanged();
+                }
             }
         });
     }
@@ -151,7 +157,7 @@ public class ChatFragment extends Fragment {
         if (xBeeService.sendFrame(transmitFrame)) {
 
 
-            ChatMessage chatMessage = new ChatMessage(false, message, "Sending...", transmitFrame.getFrameId());
+            ChatMessage chatMessage = new ChatMessage(false, message, "Sending...", transmitFrame.getFrameId(), 0);
             unAcknowledgedFrames.add(chatMessage);
 
             ArrayList<ChatMessage> messages = messageMap.get(currentNode.getKey());
@@ -188,14 +194,9 @@ public class ChatFragment extends Fragment {
             }
         });
 
-        //need to fix this
         nodeText = (TextView) getView().findViewById(R.id.nodeText);
-        if (currentNode.nodeIdentifier == null || currentNode.nodeIdentifier.length() == 0) {
-            nodeText.setText("Chatting with: " + Utility.bytesToHex(currentNode.address64));
-        } else {
-            nodeText.setText("Chatting with: " + currentNode.nodeIdentifier);
+        nodeText.setText("Chatting with: " + currentNode.getNodeIdentifier());
 
-        }
 
         chatView = (ListView) getView().findViewById(R.id.chatList);
         chatView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
@@ -204,10 +205,10 @@ public class ChatFragment extends Fragment {
         chatAdapter = new ChatAdapter(getActivity(), R.id.chatList);
         chatView.setAdapter(chatAdapter);
 
+        //update list interface for current node
+        setCurrentNode(currentNode);
+        chatAdapter.notifyDataSetChanged();
 
-        ArrayList<ChatMessage> messages = messageMap.get(currentNode.getKey());
-
-        chatAdapter.setMessages(messages);
 
     }
 

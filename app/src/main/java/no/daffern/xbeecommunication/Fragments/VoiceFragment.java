@@ -97,7 +97,7 @@ public class VoiceFragment extends Fragment {
                         MainActivity.replaceFragment(VoiceFragment.this, true);
                         MainActivity.makeToast("Call from: " + node.getNodeIdentifier());
 
-                        /*
+
                         //play the calling sound
                         final MediaPlayer mediaPlayer = MediaPlayer.create(MainActivity.getContext(),R.raw.nokia);
                         mediaPlayer.start();
@@ -106,7 +106,7 @@ public class VoiceFragment extends Fragment {
                             public void onCompletion(MediaPlayer mp) {
                                 mediaPlayer.release();
                             }
-                        });*/
+                        });
 
                     }
                     //if already in call, auto decline
@@ -214,7 +214,7 @@ public class VoiceFragment extends Fragment {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                recordStreamHelper.setQuality(seekBar.getProgress()+1);
+                recordStreamHelper.setQuality(seekBar.getProgress());
             }
         });
 
@@ -239,7 +239,7 @@ public class VoiceFragment extends Fragment {
         playbackStreamHelper = new PlaybackStreamHelper();
         playbackStreamHelper.start();
 
-        recordStreamHelper.start(seekBar.getProgress() + 1);
+        recordStreamHelper.start(seekBar.getProgress());
     }
 
 

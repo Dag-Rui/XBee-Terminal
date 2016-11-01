@@ -57,8 +57,6 @@
             android:gravity="bottom"
             android:inputType="textMultiLine"
             android:id="@+id/smsTextField"
-
-
             />
 
         <TextView

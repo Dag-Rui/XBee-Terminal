@@ -1,5 +1,7 @@
 package no.daffern.xbeecommunication.XBee.Frames;
 
+import no.daffern.xbeecommunication.Utility;
+
 /**
  * Created by Daffern on 31.05.2016.
  */
@@ -67,7 +69,7 @@ public class XBeeReceiveFrame extends XBeeFrame {
     }
 
     public boolean isAck(){
-        if ((0x01 & options) == 0x01){
+        if ((options & 1) != 0){
             return true;
         }
         else return false;
