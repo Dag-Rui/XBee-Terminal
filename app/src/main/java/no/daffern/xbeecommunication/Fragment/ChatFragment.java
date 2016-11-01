@@ -1,4 +1,4 @@
-package no.daffern.xbeecommunication.Fragments;
+package no.daffern.xbeecommunication.Fragment;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -22,7 +21,6 @@ import no.daffern.xbeecommunication.Listener.XBeeFrameListener;
 import no.daffern.xbeecommunication.Model.ChatMessage;
 import no.daffern.xbeecommunication.Model.Node;
 import no.daffern.xbeecommunication.R;
-import no.daffern.xbeecommunication.Utility;
 import no.daffern.xbeecommunication.XBee.Frames.XBeeReceiveFrame;
 import no.daffern.xbeecommunication.XBee.Frames.XBeeStatusFrame;
 import no.daffern.xbeecommunication.XBee.Frames.XBeeTransmitFrame;

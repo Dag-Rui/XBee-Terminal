@@ -1,4 +1,4 @@
-package no.daffern.xbeecommunication.Fragments;
+package no.daffern.xbeecommunication.Fragment;
 
 
 import android.os.Bundle;
@@ -21,7 +21,7 @@ import no.daffern.xbeecommunication.XBee.Frames.XBeeATCommandResponseFrame;
 import no.daffern.xbeecommunication.XBee.Frames.XBeeReceiveFrame;
 import no.daffern.xbeecommunication.XBee.Frames.XBeeStatusFrame;
 import no.daffern.xbeecommunication.XBeeService;
-import no.daffern.xbeecommunication.XBeeConfigVars;
+import no.daffern.xbeecommunication.XBeeConfig;
 
 /**
  * Created by Daffern on 25.06.2016.
@@ -71,11 +71,11 @@ public class StartFragment extends Fragment {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                address.setText("Serial number: "+Utility.bytesToHex(XBeeConfigVars.serialNumberHigh) + " " + Utility.bytesToHex(XBeeConfigVars.serialNumberLow));
-                firmware.setText("Firmware version: "+Utility.bytesToHex(XBeeConfigVars.firmwareVersion));
-                hardware.setText("Hardware version: "+Utility.bytesToHex(XBeeConfigVars.hardwareVersion));
-                operatingChannel.setText("Operating channel: "+Utility.bytesToHex(XBeeConfigVars.operatingChannel));
-                networkId.setText("Network ID: "+Utility.bytesToHex(XBeeConfigVars.networkId));
+                address.setText("Serial number: "+Utility.bytesToHex(XBeeConfig.serialNumberHigh) + " " + Utility.bytesToHex(XBeeConfig.serialNumberLow));
+                firmware.setText("Firmware version: "+Utility.bytesToHex(XBeeConfig.firmwareVersion));
+                hardware.setText("Hardware version: "+Utility.bytesToHex(XBeeConfig.hardwareVersion));
+                operatingChannel.setText("Operating channel: "+Utility.bytesToHex(XBeeConfig.operatingChannel));
+                networkId.setText("Network ID: "+Utility.bytesToHex(XBeeConfig.networkId));
             }
         });
     }
@@ -109,19 +109,19 @@ public class StartFragment extends Fragment {
             public void onATCommandResponse(XBeeATCommandResponseFrame frame) {
 
                 if (Arrays.equals(frame.getCommand(), "SH".getBytes())) {
-                    XBeeConfigVars.serialNumberHigh = frame.getCommandData();
+                    XBeeConfig.serialNumberHigh = frame.getCommandData();
                 } else if (Arrays.equals(frame.getCommand(), "SL".getBytes())) {
-                    XBeeConfigVars.serialNumberLow = frame.getCommandData();
+                    XBeeConfig.serialNumberLow = frame.getCommandData();
                 } else if (Arrays.equals(frame.getCommand(), "VR".getBytes())) {
-                    XBeeConfigVars.firmwareVersion = frame.getCommandData();
+                    XBeeConfig.firmwareVersion = frame.getCommandData();
                 } else if (Arrays.equals(frame.getCommand(), "HV".getBytes())) {
-                    XBeeConfigVars.hardwareVersion = frame.getCommandData();}
+                    XBeeConfig.hardwareVersion = frame.getCommandData();}
                 else if (Arrays.equals(frame.getCommand(), "CH".getBytes())) {
-                    XBeeConfigVars.operatingChannel = frame.getCommandData();
+                    XBeeConfig.operatingChannel = frame.getCommandData();
                 }else if (Arrays.equals(frame.getCommand(), "ID".getBytes())) {
-                    XBeeConfigVars.networkId = frame.getCommandData();
+                    XBeeConfig.networkId = frame.getCommandData();
                 }else if (Arrays.equals(frame.getCommand(), "N?".getBytes())) {
-                    XBeeConfigVars.networkDiscoveryTimeout = frame.getCommandData();
+                    XBeeConfig.networkDiscoveryTimeout = frame.getCommandData();
                 }
 
                 updateUI();

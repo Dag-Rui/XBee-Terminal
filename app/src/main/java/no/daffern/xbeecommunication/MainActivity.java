@@ -7,8 +7,6 @@ import android.hardware.usb.UsbAccessory;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -22,19 +20,18 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-import no.daffern.xbeecommunication.Fragments.ChatFragment;
-import no.daffern.xbeecommunication.Fragments.NodeListFragment;
-import no.daffern.xbeecommunication.Fragments.PerformanceFragment;
-import no.daffern.xbeecommunication.Fragments.SmsFragment;
-import no.daffern.xbeecommunication.Fragments.StartFragment;
-import no.daffern.xbeecommunication.Fragments.VoiceFragment;
+import no.daffern.xbeecommunication.Fragment.ChatFragment;
+import no.daffern.xbeecommunication.Fragment.NodeListFragment;
+import no.daffern.xbeecommunication.Fragment.PerformanceFragment;
+import no.daffern.xbeecommunication.Fragment.SmsFragment;
+import no.daffern.xbeecommunication.Fragment.StartFragment;
+import no.daffern.xbeecommunication.Fragment.VoiceFragment;
 import no.daffern.xbeecommunication.Listener.MessageListener;
 import no.daffern.xbeecommunication.Listener.NodeListListener;
 import no.daffern.xbeecommunication.Listener.UsbListener;
 import no.daffern.xbeecommunication.Model.Node;
 import no.daffern.xbeecommunication.USB.UsbAccessoryWrapper;
 import no.daffern.xbeecommunication.USB.UsbHostWrapper;
-import no.daffern.xbeecommunication.XBee.Frames.XBeeATCommandFrame;
 import no.daffern.xbeecommunication.XBee.Frames.XBeeFrame;
 import no.daffern.xbeecommunication.XBee.XBeeFrameBuffer;
 

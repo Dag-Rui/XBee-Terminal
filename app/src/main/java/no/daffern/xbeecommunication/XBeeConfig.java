@@ -3,7 +3,7 @@ package no.daffern.xbeecommunication;
 /**
  * Created by Daffern on 07.08.2016.
  */
-public class XBeeConfigVars {
+public class XBeeConfig {
     public static byte[] serialNumberLow;
     public static byte[] serialNumberHigh;
     public static byte[] firmwareVersion;

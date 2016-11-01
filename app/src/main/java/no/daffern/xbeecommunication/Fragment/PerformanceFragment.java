@@ -1,4 +1,4 @@
-package no.daffern.xbeecommunication.Fragments;
+package no.daffern.xbeecommunication.Fragment;
 
 import android.Manifest;
 import android.content.Context;
@@ -6,21 +6,14 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.media.MediaRecorder;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 
@@ -31,7 +24,6 @@ import no.daffern.xbeecommunication.R;
 import no.daffern.xbeecommunication.Utility;
 import no.daffern.xbeecommunication.XBee.Frames.XBeeATCommandFrame;
 import no.daffern.xbeecommunication.XBee.Frames.XBeeATCommandResponseFrame;
-import no.daffern.xbeecommunication.XBee.Frames.XBeeReceiveFrame;
 import no.daffern.xbeecommunication.XBeeService;
 
 /**

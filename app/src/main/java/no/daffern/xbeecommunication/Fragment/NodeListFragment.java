@@ -1,4 +1,4 @@
-package no.daffern.xbeecommunication.Fragments;
+package no.daffern.xbeecommunication.Fragment;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,7 +16,7 @@ import no.daffern.xbeecommunication.R;
 import no.daffern.xbeecommunication.XBee.Frames.XBeeATCommandFrame;
 import no.daffern.xbeecommunication.XBeeService;
 import no.daffern.xbeecommunication.XBee.XBeeATNetworkDiscover;
-import no.daffern.xbeecommunication.XBeeConfigVars;
+import no.daffern.xbeecommunication.XBeeConfig;
 
 /**
  * Created by Daffern on 12.06.2016.
@@ -71,7 +71,7 @@ public class NodeListFragment extends Fragment {
 
                     }
 
-                }, XBeeConfigVars.getNetworkDiscoveryTimeout());
+                }, XBeeConfig.getNetworkDiscoveryTimeout());
             }
         });
 

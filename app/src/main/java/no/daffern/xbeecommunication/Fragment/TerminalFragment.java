@@ -1,4 +1,4 @@
-package no.daffern.xbeecommunication.Fragments;
+package no.daffern.xbeecommunication.Fragment;
 
 import android.app.Fragment;
 import android.os.Bundle;
