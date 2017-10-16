@@ -2,4 +2,6 @@ Android app that allows for wireless text and voice communication using XBee Dig
 
 It uses this library: https://github.com/felHR85/UsbSerial for USB serial communication with the XBee(For Android devices with USB Host capability). The USB accessory API is also implemented allowing Android devices without USB Host to connect to for example an Arduino Due. The Arduino Due then acts as the serial converter to the XBee module. (Arduino Due and Arduino Uno code is included in the "Arduino Code" folder.)
 
+https://github.com/mutantbob/ndk-speex Is used for voice compression
+
 Google Play: https://play.google.com/store/apps/details?id=no.daffern.xbeecommunication
