@@ -1,11 +1,11 @@
 package no.daffern.xbeecommunication.XBee.Frames;
 
-import no.daffern.xbeecommunication.XBee.Frames.XBeeFrame;
-
 /**
  * Created by Daffern on 31.05.2016.
+ *
+ * Parses an XBee status frame. These are used to check if an XBee Transmit frame was successfully sent or not
  */
-public class XBeeStatusFrame  extends XBeeFrame {
+public class XBeeStatusFrame extends XBeeFrame {
 
     //Delivery status codes
     public static final byte SUCCESS = 0x00;
@@ -23,8 +23,8 @@ public class XBeeStatusFrame  extends XBeeFrame {
     byte deliveryStatus;
     byte discoveryStatus;
 
-    public XBeeStatusFrame(byte[] bytes){
-        length = (short)(bytes[1] << 8 | bytes[2]);
+    public XBeeStatusFrame(byte[] bytes) {
+        length = (short) (bytes[1] << 8 | bytes[2]);
         frameType = bytes[3];
         frameId = bytes[4];
         destinationAddress16[0] = bytes[5];

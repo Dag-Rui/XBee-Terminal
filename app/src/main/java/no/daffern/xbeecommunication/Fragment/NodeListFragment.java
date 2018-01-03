@@ -10,16 +10,18 @@ import android.widget.Button;
 import android.widget.ListView;
 
 import no.daffern.xbeecommunication.Adapter.NodeListAdapter;
-import no.daffern.xbeecommunication.Listener.XBeeFrameListener;
 import no.daffern.xbeecommunication.Listener.NodeListListener;
+import no.daffern.xbeecommunication.Listener.XBeeFrameListener;
 import no.daffern.xbeecommunication.R;
 import no.daffern.xbeecommunication.XBee.Frames.XBeeATCommandFrame;
-import no.daffern.xbeecommunication.XBeeService;
 import no.daffern.xbeecommunication.XBee.XBeeATNetworkDiscover;
 import no.daffern.xbeecommunication.XBeeConfig;
+import no.daffern.xbeecommunication.XBeeService;
 
 /**
  * Created by Daffern on 12.06.2016.
+ *
+ * Implements the list view of connected XBee nodes, using XBeeService
  */
 public class NodeListFragment extends Fragment {
 
@@ -93,7 +95,7 @@ public class NodeListFragment extends Fragment {
         nodeListAdapter.setNodeListListener(nodeListListener);
     }
 
-    public void updateUI(){
+    public void updateUI() {
         if (getActivity() == null)
             return;
         getActivity().runOnUiThread(new Runnable() {
@@ -111,6 +113,4 @@ public class NodeListFragment extends Fragment {
             nodeListAdapter.setNodeListListener(nodeListListener);
         }
     }
-
-
 }

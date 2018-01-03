@@ -19,6 +19,9 @@ import no.daffern.xbeecommunication.XBee.XBeeFrameType;
 
 /**
  * Created by Daffern on 22.06.2016.
+ *
+ * Singleton class for sending and receiving XBeeFrames from the XBee module through the USB connection.
+ * Keeps track of all nodes on the network by reading the addresses of received frames
  */
 public class XBeeService {
 
@@ -52,20 +55,21 @@ public class XBeeService {
 
     }
 
+    //outgoing data is written to the message listener (see MainAcitivty.onCreate())
     public void setMessageListener(MessageListener messageListener) {
         this.messageListener = messageListener;
     }
 
+    //outgoing data is sent to the messageListener
     public boolean sendFrame(XBeeFrame xBeeFrame) {
         return messageListener.onMessageReceived(xBeeFrame.generateFrame());
     }
 
-    //Only called from the MainActivity. Handles frames by keeping track of nodes and distributing to each fragment
+    //Only called from the MainActivity. Handles frames by keeping track of nodes and distributing frames to each fragment through the
     public void receiveFrame(XBeeFrame frame) {
 
         switch (frame.getFrameType()) {
             case XBeeFrameType.XBEE_RECEIVE: {
-
 
                 XBeeReceiveFrame receiveFrame = (XBeeReceiveFrame) frame;
 
@@ -109,7 +113,6 @@ public class XBeeService {
                             xBeeFrameListener.onVoiceStatusMessage(receiveFrame);
                         }
                         break;
-
                 }
 
                 break;
@@ -119,9 +122,7 @@ public class XBeeService {
 
                 Log.e(TAG, "Received a Transmit Status Frame");
 
-
                 XBeeStatusFrame status = (XBeeStatusFrame) frame;
-
 
                 for (XBeeFrameListener xBeeFrameListener : xBeeFrameListeners) {
                     xBeeFrameListener.onTransmitStatus(status);
@@ -132,7 +133,6 @@ public class XBeeService {
             case XBeeFrameType.XBEE_AT_COMMAND_RESPONSE:
 
                 Log.e(TAG, "Received an AT Command Response Frame");
-
 
                 XBeeATCommandResponseFrame response = (XBeeATCommandResponseFrame) frame;
                 if (Arrays.equals(response.getCommand(), XBeeATNetworkDiscover.ND_COMMAND)) {
@@ -158,9 +158,7 @@ public class XBeeService {
                 break;
 
         }
-
     }
-
 
     public LinkedHashMap<Integer, Node> getNodeMap() {
         return nodeMap;
@@ -170,9 +168,8 @@ public class XBeeService {
         xBeeFrameListeners.add(xBeeFrameListener);
 
     }
-    public void removeXBeeFrameListener(XBeeFrameListener xBeeFrameListener){
+
+    public void removeXBeeFrameListener(XBeeFrameListener xBeeFrameListener) {
         xBeeFrameListeners.remove(xBeeFrameListener);
     }
-
-
 }

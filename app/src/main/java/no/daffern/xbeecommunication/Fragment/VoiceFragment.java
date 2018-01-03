@@ -3,7 +3,6 @@ package no.daffern.xbeecommunication.Fragment;
 
 import android.app.Activity;
 import android.media.AudioManager;
-
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -11,10 +10,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-
 import android.widget.SeekBar;
 import android.widget.TextView;
-
 
 import no.daffern.xbeecommunication.Audio.PlaybackStreamHelper;
 import no.daffern.xbeecommunication.Audio.RecordStreamHelper;
@@ -29,8 +26,9 @@ import no.daffern.xbeecommunication.XBeeService;
 
 /**
  * Created by Daffern on 11.07.2016.
+ *
+ * Implements view and recording/playback for voice communication
  */
-
 
 public class VoiceFragment extends Fragment {
 
@@ -62,6 +60,7 @@ public class VoiceFragment extends Fragment {
         receivingCall,
         inCall
     }
+
     CallState callState = CallState.none;
 
     boolean sending = false;
@@ -99,7 +98,7 @@ public class VoiceFragment extends Fragment {
 
 
                         //play the calling sound
-                        final MediaPlayer mediaPlayer = MediaPlayer.create(MainActivity.getContext(),R.raw.nokia);
+                        final MediaPlayer mediaPlayer = MediaPlayer.create(MainActivity.getContext(), R.raw.nokia);
                         mediaPlayer.start();
                         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                             @Override
@@ -110,7 +109,7 @@ public class VoiceFragment extends Fragment {
 
                     }
                     //if already in call, auto decline
-                    else{
+                    else {
                         MainActivity.makeToast("Blocked a call from: " + node.getNodeIdentifier());
                     }
 
@@ -124,10 +123,7 @@ public class VoiceFragment extends Fragment {
                 }
                 updateUI();
             }
-
         });
-
-
     }
 
     public void setCurrentNode(Node node) {
@@ -152,7 +148,7 @@ public class VoiceFragment extends Fragment {
 
         nodeText = (TextView) getView().findViewById(R.id.nodeText);
 
-        seekBar = (SeekBar)getView().findViewById(R.id.seekBar);
+        seekBar = (SeekBar) getView().findViewById(R.id.seekBar);
 
         callButton = (Button) getView().findViewById(R.id.button_call);
         talkButton = (Button) getView().findViewById(R.id.button_talk);
@@ -264,11 +260,11 @@ public class VoiceFragment extends Fragment {
         xBeeService.sendFrame(xBeeTransmitFrame);
     }
 
-    private void updateUI(){
+    private void updateUI() {
 
         Activity activity = getActivity();
 
-        if (activity != null){
+        if (activity != null) {
 
             activity.runOnUiThread(new Runnable() {
                 @Override
@@ -276,7 +272,7 @@ public class VoiceFragment extends Fragment {
 
                     nodeText.setText("Call to: " + currentNode.getNodeIdentifier());
 
-                    switch (callState){
+                    switch (callState) {
                         case none:
                             callButton.setText("Call");
                             callButton.setBackgroundColor(getResources().getColor(R.color.green));
@@ -310,25 +306,18 @@ public class VoiceFragment extends Fragment {
                 }
             });
         }
-
     }
-
-
 
     @Override
     public void onPause() {
         super.onPause();
 
         stopSending();
-
     }
 
     @Override
     public void onResume() {
         super.onResume();
         updateUI();
-
     }
-
-
 }

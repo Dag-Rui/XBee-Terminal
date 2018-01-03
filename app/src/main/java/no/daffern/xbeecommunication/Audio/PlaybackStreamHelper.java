@@ -9,15 +9,15 @@ import android.util.Log;
 import com.purplefrog.speexjni.FrequencyBand;
 import com.purplefrog.speexjni.SpeexDecoder;
 
-import java.util.ArrayList;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import no.daffern.xbeecommunication.MainActivity;
 
 /**
  * Created by Daffern on 20.09.2016.
+ *
+ * Helper class for playing speex encoded sound through addFrame()
  */
 
 public class PlaybackStreamHelper {
@@ -37,22 +37,19 @@ public class PlaybackStreamHelper {
 
     Queue<byte[]> frames = new ConcurrentLinkedQueue<>();
 
-
-
-    public void addFrame(byte[] frame){
+    public void addFrame(byte[] frame) {
         frames.add(frame);
     }
 
-
-    public void start(){
+    public void start() {
         speexDecoder = new SpeexDecoder(FrequencyBand.NARROW_BAND);
 
 
         audioTrack = new AudioTrack(streamType, sampleRate, channel, audioFormat, 160, AudioTrack.MODE_STREAM);
 
-        if (audioTrack.getState() != AudioRecord.STATE_INITIALIZED){
+        if (audioTrack.getState() != AudioRecord.STATE_INITIALIZED) {
             MainActivity.makeToast("Could not initialize AudioTrack");
-            Log.e(TAG,"Could not initialize AudioTrack");
+            Log.e(TAG, "Could not initialize AudioTrack");
         }
 
         Thread playbackThread = new Thread(new Runnable() {
@@ -62,26 +59,20 @@ public class PlaybackStreamHelper {
                 audioTrack.play();
                 playing = true;
 
-                while(playing){
+                while (playing) {
 
                     byte[] encoded = frames.poll();
 
-                    if (encoded != null){
+                    if (encoded != null) {
 
 
                         short[] frame = speexDecoder.decode(encoded);
 
                         audioTrack.write(frame, 0, frame.length);
                     }
-
-
                 }
-
-
             }
         });
         playbackThread.start();
-
     }
-
 }

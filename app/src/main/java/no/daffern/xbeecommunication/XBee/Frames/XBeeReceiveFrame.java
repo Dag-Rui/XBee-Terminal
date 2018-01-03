@@ -1,9 +1,10 @@
 package no.daffern.xbeecommunication.XBee.Frames;
 
-import no.daffern.xbeecommunication.Utility;
-
 /**
  * Created by Daffern on 31.05.2016.
+ *
+ * Parses an XBee receive frame, use getRfData() to retrieve data.
+ * This frame is received when another node send a message using the XBeeTransmitFrame
  */
 public class XBeeReceiveFrame extends XBeeFrame {
 
@@ -18,12 +19,12 @@ public class XBeeReceiveFrame extends XBeeFrame {
     private byte checksum;
 
     public XBeeReceiveFrame(byte[] bytes) {
-        length = (short)(bytes[1] << 8 | bytes[2]);
+        length = (short) (bytes[1] << 8 | bytes[2]);
 
         frameType = bytes[3];
 
-        for (int i = 0 ; i < 8 ; i++){
-            address64[i] = bytes [4+i];
+        for (int i = 0; i < 8; i++) {
+            address64[i] = bytes[4 + i];
         }
 
         address16[0] = bytes[12];
@@ -35,10 +36,10 @@ public class XBeeReceiveFrame extends XBeeFrame {
 
         int rfDataLength = length - 13;
         rfData = new byte[rfDataLength];
-        for (int i = 0 ; i < rfDataLength ; i++){
-            rfData[i] = bytes[16+i];
+        for (int i = 0; i < rfDataLength; i++) {
+            rfData[i] = bytes[16 + i];
         }
-        checksum = bytes[16+rfDataLength];
+        checksum = bytes[16 + rfDataLength];
     }
 
     public byte[] getAddress64() {
@@ -49,8 +50,8 @@ public class XBeeReceiveFrame extends XBeeFrame {
         return address16;
     }
 
-    public boolean isBroadcast(){
-        if ((options & 0x02) == 0x02){
+    public boolean isBroadcast() {
+        if ((options & 0x02) == 0x02) {
             return true;
         }
         return false;
@@ -64,15 +65,14 @@ public class XBeeReceiveFrame extends XBeeFrame {
         return checksum;
     }
 
-    public byte getDataType(){
+    public byte getDataType() {
         return dataType;
     }
 
-    public boolean isAck(){
-        if ((options & 1) != 0){
+    public boolean isAck() {
+        if ((options & 1) != 0) {
             return true;
-        }
-        else return false;
+        } else return false;
 
     }
 }

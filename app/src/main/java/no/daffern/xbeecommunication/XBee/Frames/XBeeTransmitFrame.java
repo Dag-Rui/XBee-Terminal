@@ -6,6 +6,11 @@ import no.daffern.xbeecommunication.XBee.XBeeFrameType;
 
 /**
  * Created by Daffern on 31.05.2016.
+ *
+ * Generates an XBee Transmit frame which is used to send data over the XBee network.
+ * The data sent is received by another node in the form of an XBeeReceiveFrame.
+ *
+ * If not address is set, the default is to broadcast
  */
 public class XBeeTransmitFrame extends XBeeFrame {
 
@@ -26,22 +31,21 @@ public class XBeeTransmitFrame extends XBeeFrame {
     public static int MAX_RF_DATA = 73; //Default max rfData size for the XBee-PRO DigiMesh 2.4
     private static int MIN_PAYLOAD = 14; //size without any rfData
 
+    //dataType is application specific data (voice or text), see the DataTypes class
     public XBeeTransmitFrame(byte dataType) {
         frameType = XBeeFrameType.XBEE_TRANSMIT_REQUEST;
         this.dataType = dataType;
     }
 
-
-    public void setRfData(byte[] bytes){
+    public void setRfData(byte[] bytes) {
         this.rfData = bytes;
     }
 
     @Override
-    public byte[] generateFrame(){
-        if (statusFrameEnabled){
+    public byte[] generateFrame() {
+        if (statusFrameEnabled) {
             frameId = getNextFrameId();
-        }
-        else{
+        } else {
             frameId = 0;
         }
 
@@ -50,8 +54,8 @@ public class XBeeTransmitFrame extends XBeeFrame {
         byte[] frame = new byte[bytes];
 
         frame[0] = START_DELIMITER;
-        frame[1] = (byte)((payloadSize >> 8) & 0xff);
-        frame[2] = (byte)(payloadSize & 0xFF);
+        frame[1] = (byte) ((payloadSize >> 8) & 0xff);
+        frame[2] = (byte) (payloadSize & 0xFF);
         frame[3] = frameType;
         frame[4] = frameId;
         frame[5] = address64[0];
@@ -69,8 +73,8 @@ public class XBeeTransmitFrame extends XBeeFrame {
 
         frame[17] = dataType;
 
-        for (int i = 0; i < rfData.length ; i++){
-            frame[18+i] = rfData[i];
+        for (int i = 0; i < rfData.length; i++) {
+            frame[18 + i] = rfData[i];
         }
 
         checksum.add(frameType);
@@ -86,19 +90,19 @@ public class XBeeTransmitFrame extends XBeeFrame {
         return frame;
     }
 
-    public void setStatusFrameEnabled(boolean bool){
+    public void setStatusFrameEnabled(boolean bool) {
         this.statusFrameEnabled = bool;
     }
 
-    public void setAck(boolean ack){
-        options = (byte)Utility.setBit(options, 0, !ack);
+    public void setAck(boolean ack) {
+        options = (byte) Utility.setBit(options, 0, !ack);
     }
 
     public void setAddress64(byte[] address64) {
-        this.address64  = address64;
+        this.address64 = address64;
     }
 
-    public void setDataType(byte dataType){
+    public void setDataType(byte dataType) {
         this.dataType = dataType;
     }
 }

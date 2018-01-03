@@ -2,9 +2,6 @@ package no.daffern.xbeecommunication.Adapter;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,12 +11,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.LinkedHashMap;
-import java.util.List;
 
 import no.daffern.xbeecommunication.Listener.NodeListListener;
 import no.daffern.xbeecommunication.Model.Node;
-import no.daffern.xbeecommunication.Utility;
 import no.daffern.xbeecommunication.R;
+import no.daffern.xbeecommunication.Utility;
 
 
 public class NodeListAdapter extends ArrayAdapter<Node> {
@@ -82,7 +78,6 @@ public class NodeListAdapter extends ArrayAdapter<Node> {
 
         return row;
     }
-
 
     public View.OnClickListener onChatClickListener = new View.OnClickListener() {
         @Override

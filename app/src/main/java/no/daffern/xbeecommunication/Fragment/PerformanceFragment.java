@@ -28,6 +28,14 @@ import no.daffern.xbeecommunication.XBeeService;
 
 /**
  * Created by Daffern on 30.09.2016.
+ *
+ * Dirty implementation of a fragment which obtains certain parameters from the XBee module.
+ * It:
+ * -Obtains the RSSI, transmission failures, total unicast attempts and ACK timeouts of the XBee module.
+ * -Records GPS coordinates
+ * -Shows the time of an amplitude peak (from recorded voice)
+ *
+ * Useful for measuring the XBee module transmission range and latency.
  */
 
 public class PerformanceFragment extends Fragment {
@@ -122,8 +130,6 @@ public class PerformanceFragment extends Fragment {
             }
         });
 
-
-
         RecordStreamHelper.setAudioAmplitudePeakListener(new RecordStreamHelper.AudioAmplitudePeakListener() {
             @Override
             public void onAudioAmplitudePeak(final double amplitude, long time) {
@@ -133,7 +139,7 @@ public class PerformanceFragment extends Fragment {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        peakText.setText((int)amplitude + "");
+                        peakText.setText((int) amplitude + "");
                         peakTimeText.setText(sPeakTime);
                     }
                 });
@@ -142,11 +148,13 @@ public class PerformanceFragment extends Fragment {
             }
         });
     }
-    private class UpdateParametersRunnable implements Runnable  {
+
+    private class UpdateParametersRunnable implements Runnable {
         int sleepTime = 2000;
         boolean running = false;
+
         @Override
-        public void run (){
+        public void run() {
             running = true;
             while (running) {
                 try {
@@ -162,20 +170,19 @@ public class PerformanceFragment extends Fragment {
                     Thread.sleep(sleepTime);
                     sendATCommand("BC");
                     Thread.sleep(sleepTime);
-                }
-                catch (InterruptedException e) {
+                } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
         }
-        public void cancel(){
+
+        public void cancel() {
             running = false;
         }
     }
 
-
     @Override
-    public void onResume(){
+    public void onResume() {
 
 
         updateParametersRunnable = new UpdateParametersRunnable();
@@ -188,7 +195,6 @@ public class PerformanceFragment extends Fragment {
 
                 byte[] command = xBeeATCommandResponseFrame.getCommand();
                 String response = Utility.bytesToHex(xBeeATCommandResponseFrame.getCommandData());
-
 
 
                 if (Arrays.equals(command, "DB".getBytes())) {
@@ -212,8 +218,9 @@ public class PerformanceFragment extends Fragment {
         xBeeService.addXBeeFrameListener(xBeeFrameListener);
         super.onResume();
     }
+
     @Override
-    public void onPause(){
+    public void onPause() {
         xBeeService.removeXBeeFrameListener(xBeeFrameListener);
 
         updateParametersRunnable.cancel();
@@ -221,7 +228,7 @@ public class PerformanceFragment extends Fragment {
         super.onPause();
     }
 
-    private void updateUI(final TextView textView, final String string){
+    private void updateUI(final TextView textView, final String string) {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -230,11 +237,10 @@ public class PerformanceFragment extends Fragment {
         });
     }
 
-    private void sendATCommand(String command){
+    private void sendATCommand(String command) {
         XBeeATCommandFrame xBeeATCommandFrame = new XBeeATCommandFrame(command);
         xBeeService.sendFrame(xBeeATCommandFrame);
     }
-
 
     private void syncTime(long gpsTime) {
         long deviceTimeAtSync = System.currentTimeMillis();

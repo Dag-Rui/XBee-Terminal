@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.hardware.usb.UsbAccessory;
 import android.hardware.usb.UsbManager;
-import android.os.Handler;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
@@ -16,35 +15,36 @@ import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import no.daffern.xbeecommunication.Listener.UsbListener;
 
 /**
  * Created by Daffern on 10.06.2016.
+ *
+ * Helper class for reading and writing to a connected Arduino device. The Arduino device relays data between the XBee and Android device
+ *
+ * The arduino code is located in this repository under the "Arduino code" folder
  */
-public class UsbAccessoryWrapper  {
+public class UsbAccessoryWrapper {
 
     private static final String TAG = UsbAccessoryWrapper.class.getSimpleName();
 
     private static final String ACTION_USB_ACCESSORY_PERMISSION = "com.android.example.USB_ACCESSORY_PERMISSION";
 
-
     private Activity activity;
 
-
-    UsbAccessory mAccessory;
-    ParcelFileDescriptor mFileDescriptor;
-    FileInputStream mInputStream;
-    FileOutputStream mOutputStream;
+    private UsbAccessory mAccessory;
+    private ParcelFileDescriptor mFileDescriptor;
+    private FileInputStream mInputStream;
+    private FileOutputStream mOutputStream;
     private UsbManager usbManager;
 
     private boolean mPermissionRequestPending;
-    boolean isConnected = false;
-    ConnectedThread mConnectedThread;
+    private boolean isConnected = false;
+    private ConnectedThread mConnectedThread;
 
-    UsbListener usbListener;
+    private UsbListener usbListener;
 
     public UsbAccessoryWrapper(Activity activity) {
         this.activity = activity;
@@ -54,13 +54,14 @@ public class UsbAccessoryWrapper  {
         initUsbAccessory();
     }
 
-
     //start accessory
     private void initUsbAccessory() {
-        //mUsbManager = UsbManager.getInstance(this);
 
+        //When a USB device is connected request user permission through this filter
         IntentFilter filter = new IntentFilter(ACTION_USB_ACCESSORY_PERMISSION);
         filter.addAction(UsbManager.ACTION_USB_ACCESSORY_DETACHED);
+
+        //register the receiver for when user accepts USB permission
         activity.registerReceiver(mUsbReceiver, filter);
     }
 
@@ -68,14 +69,13 @@ public class UsbAccessoryWrapper  {
         this.usbListener = usbListener;
     }
 
-
+    //when a USB accessory is connected, it is received in the onReceive method of the class
     private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (ACTION_USB_ACCESSORY_PERMISSION.equals(action)) {
                 synchronized (this) {
-
 
                     //UsbAccessory accessory = UsbManager.getAccessory(intent);
                     UsbAccessory accessory = usbManager.getAccessoryList()[0];
@@ -131,11 +131,13 @@ public class UsbAccessoryWrapper  {
         }
     }
 
+    //manually request user permission
     private void requestUserPermission(UsbAccessory accessory) {
         PendingIntent mPendingIntent = PendingIntent.getBroadcast(activity, 0, new Intent(ACTION_USB_ACCESSORY_PERMISSION), 0);
         usbManager.requestPermission(accessory, mPendingIntent);
     }
 
+    //standard method for opening USB output and input streams
     private void openAccessory(UsbAccessory accessory) {
         mFileDescriptor = usbManager.openAccessory(accessory);
 
@@ -166,8 +168,6 @@ public class UsbAccessoryWrapper  {
     }
 
     private void closeAccessory() {
-
-
         // Cancel any thread currently running a connection
         if (mConnectedThread != null) {
             mConnectedThread.cancel();
@@ -202,30 +202,21 @@ public class UsbAccessoryWrapper  {
     ConcurrentLinkedQueue<byte[]> outBuffer = new ConcurrentLinkedQueue<>();
     boolean lock = false;
 
-
+    //write to USB
     public void write(byte[] bytes) {
-
 
         outBuffer.add(bytes);
         try {
-
-
             while (outBuffer.size() > 0) {
                 if (outBuffer.peek() != null)
                     mOutputStream.write(outBuffer.poll());
-
-
             }
-
-
         } catch (IOException e) {
             Log.e(TAG, "write failed", e);
         }
-
-
     }
 
-
+    //Thread which reads from USB port and writes to the usbListener
     private class ConnectedThread extends Thread {
 
         byte[] buffer = new byte[16384];
@@ -237,8 +228,6 @@ public class UsbAccessoryWrapper  {
 
         public void run() {
             while (running) {
-
-
                 try {
                     final int bytes = mInputStream.read(buffer);
 
@@ -253,9 +242,6 @@ public class UsbAccessoryWrapper  {
                     setConnectionStatus(false);
                     cancel();
                 }
-
-
-
             }
         }
 

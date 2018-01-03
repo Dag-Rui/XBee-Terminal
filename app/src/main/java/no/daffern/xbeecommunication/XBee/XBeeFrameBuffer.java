@@ -11,6 +11,11 @@ import no.daffern.xbeecommunication.XBee.Frames.XBeeStatusFrame;
 
 /**
  * Created by Daffern on 04.06.2016.
+ *
+ * Utility class for generating XBee frames and for parsing bytes into XBee frames
+ *
+ * Data received from USB does usually not contain a full frame, the putAndCheck method buffers this data
+ * and returns and array of frames if it manages to parse one.
  */
 public class XBeeFrameBuffer {
 
@@ -19,17 +24,18 @@ public class XBeeFrameBuffer {
     //size in bytes of start delimiter + length(2 bytes) + checksum
     public final static int FRAME_BASE_SIZE = 4;
 
-    public final static int bufferSize =  10000;
+    public final static int bufferSize = 10000;
 
     byte[] buffer = new byte[bufferSize]; //max framesize is 97
     int byteCount = 0;
     int position = 0;
 
-
-
-    /*
-    Insert data into the buffer, returns any frames parsed
-    If the buffer decides that a frame is complete, parse and return it.
+    /**
+     * Insert data into the buffer, returns any frames parsed
+     * If the buffer decides that a frame is complete, parse and return it.
+     * @param bytes any number of bytes
+     * @return an array with usually none or one XBee frame
+     * @throws Exception
      */
     public ArrayList<XBeeFrame> putAndCheck(byte[] bytes) throws Exception {
         if (bytes == null)
@@ -53,8 +59,8 @@ public class XBeeFrameBuffer {
                 position = 0;
 
                 //search for the start delimiter
-                for (int i = position ; i < byteCount ; i++){
-                    if (buffer[i] == XBeeFrame.START_DELIMITER){
+                for (int i = position; i < byteCount; i++) {
+                    if (buffer[i] == XBeeFrame.START_DELIMITER) {
 
                         Log.e(TAG, "Found start delimiter, skipping " + i + " bytes");
 
@@ -66,13 +72,11 @@ public class XBeeFrameBuffer {
                         break;
                     }
                 }
-                if (position == 0){
+                if (position == 0) {
 
                     Log.e(TAG, "could not find start delimiter, resetting");
                     return xBeeFrames;
                 }
-
-
                 //throw new Exception("The start delimiter is wrong: " + buffer[0] + ". Resetting buffer");
             }
 
@@ -94,7 +98,7 @@ public class XBeeFrameBuffer {
                 break;
             }
             //If there are more than one frame in the buffer
-            else if (frameEnd < byteCount){
+            else if (frameEnd < byteCount) {
                 XBeeFrame frame = createFrame(buffer, position, length + FRAME_BASE_SIZE);
                 xBeeFrames.add(frame);
 
@@ -109,10 +113,16 @@ public class XBeeFrameBuffer {
                 break;
             }
         }
-
         return xBeeFrames;
     }
 
+    /**
+     * Creates an XBeeFrame from a buffer
+     * @param bytes the buffer
+     * @param offset
+     * @param length
+     * @return
+     */
     private XBeeFrame createFrame(byte[] bytes, int offset, int length) {
         byte[] buf = new byte[length];
         System.arraycopy(bytes, offset, buf, 0, length);

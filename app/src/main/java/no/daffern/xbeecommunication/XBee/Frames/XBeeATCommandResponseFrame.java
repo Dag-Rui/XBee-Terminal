@@ -2,6 +2,8 @@ package no.daffern.xbeecommunication.XBee.Frames;
 
 /**
  * Created by Daffern on 12.06.2016.
+ *
+ * Parses an XBee AT command response
  */
 public class XBeeATCommandResponseFrame extends XBeeFrame {
 
@@ -11,8 +13,8 @@ public class XBeeATCommandResponseFrame extends XBeeFrame {
     byte checksum;
 
 
-    public XBeeATCommandResponseFrame(byte[] bytes){
-        length = (short)(bytes[1] << 8 | bytes[2]);
+    public XBeeATCommandResponseFrame(byte[] bytes) {
+        length = (short) (bytes[1] << 8 | bytes[2]);
         frameType = bytes[3];
         frameId = bytes[4];
         command[0] = bytes[5];
@@ -21,10 +23,10 @@ public class XBeeATCommandResponseFrame extends XBeeFrame {
 
         int commandDataLength = length - 5;
         commandData = new byte[commandDataLength];
-        for (int i = 0 ; i < commandDataLength ; i++){
-            commandData[i] = bytes[i+8];
+        for (int i = 0; i < commandDataLength; i++) {
+            commandData[i] = bytes[i + 8];
         }
-        checksum = bytes[8+commandDataLength];
+        checksum = bytes[8 + commandDataLength];
     }
 
     public byte getStatus() {

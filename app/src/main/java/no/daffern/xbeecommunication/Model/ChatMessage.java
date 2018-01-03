@@ -1,5 +1,10 @@
 package no.daffern.xbeecommunication.Model;
 
+/**
+ * Created by Daffern on 12.06.2016.
+ * Contains the data of a received or sent chat message
+ */
+
 public class ChatMessage {
     public boolean left;
     public byte frameId;

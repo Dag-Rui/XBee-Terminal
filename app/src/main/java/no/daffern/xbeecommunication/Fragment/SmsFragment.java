@@ -34,6 +34,11 @@ import no.daffern.xbeecommunication.XBeeService;
 
 /**
  * Created by Daffern on 07.07.2016.
+ *
+ * Handles transfers of SMS commands through the XBee network
+ *
+ * For example, one node sends an SMS command through the XBee network.
+ * Another node receives it and sends an actual SMS on its mobile network.
  */
 public class SmsFragment extends Fragment {
 
@@ -50,9 +55,7 @@ public class SmsFragment extends Fragment {
     TextView statusText;
     Button sendButton;
 
-
     Map<Integer, Map<Byte, SmsMessage>> smsMessageMap;  //node address hashkey, sms id, sms message
-
 
     public SmsFragment() {
         smsMessageMap = new HashMap<>();
@@ -130,14 +133,12 @@ public class SmsFragment extends Fragment {
                         statusText.append("\n");
                     }
                 });
-
             }
 
             @Override
             public void onTransmitStatus(XBeeStatusFrame xBeeStatusFrame) {
                 //TODO check if xbee transfer was successful
             }
-
         });
     }
 
@@ -145,19 +146,14 @@ public class SmsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
-
         return inflater.inflate(R.layout.fragment_sms, container, false);
     }
-
 
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
 
-
-
         initUI();
-
     }
 
     public void setCurrentNode(Node node) {
@@ -171,8 +167,7 @@ public class SmsFragment extends Fragment {
         statusText = (TextView) getView().findViewById(R.id.smsStatusText);
         sendButton = (Button) getView().findViewById(R.id.sendButton);
 
-
-        nodeText.setText("Send SMS through: "+currentNode.getNodeIdentifier());
+        nodeText.setText("Send SMS through: " + currentNode.getNodeIdentifier());
 
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -195,7 +190,6 @@ public class SmsFragment extends Fragment {
                     return;
                 }
 
-
                 Map<Byte, SmsMessage> smsMap = smsMessageMap.get(currentNode.getKey());
                 if (smsMap == null) {
                     smsMap = new HashMap<Byte, SmsMessage>();
@@ -216,7 +210,6 @@ public class SmsFragment extends Fragment {
                 XBeeTransmitFrame xBeeTransmitFrame = new XBeeTransmitFrame(DataTypes.APP_SMS_MESSAGE);
                 xBeeTransmitFrame.setAddress64(currentNode.address64);
                 xBeeTransmitFrame.setRfData(rfData);
-
 
                 xBeeService.sendFrame(xBeeTransmitFrame);
             }
@@ -245,16 +238,16 @@ public class SmsFragment extends Fragment {
                                 sendStatusMessage(node, smsId, SmsMessage.REMOTE_MOBILE_SENT_SMS);
                                 break;
                             case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
-                                sendStatusMessage(node,smsId, SmsMessage.REMOTE_MOBILE_ERROR_GENERIC_FAILURE);
+                                sendStatusMessage(node, smsId, SmsMessage.REMOTE_MOBILE_ERROR_GENERIC_FAILURE);
                                 break;
                             case SmsManager.RESULT_ERROR_NO_SERVICE:
-                                sendStatusMessage(node,smsId, SmsMessage.REMOTE_MOBILE_RESULT_ERROR_NO_SERVICE);
+                                sendStatusMessage(node, smsId, SmsMessage.REMOTE_MOBILE_RESULT_ERROR_NO_SERVICE);
                                 break;
                             case SmsManager.RESULT_ERROR_NULL_PDU:
-                                sendStatusMessage(node,smsId, SmsMessage.REMOTE_MOBILE_RESULT_ERROR_NULL_PDU);
+                                sendStatusMessage(node, smsId, SmsMessage.REMOTE_MOBILE_RESULT_ERROR_NULL_PDU);
                                 break;
                             case SmsManager.RESULT_ERROR_RADIO_OFF:
-                                sendStatusMessage(node,smsId, SmsMessage.REMOTE_MOBILE_RESULT_ERROR_RADIO_OFF);
+                                sendStatusMessage(node, smsId, SmsMessage.REMOTE_MOBILE_RESULT_ERROR_RADIO_OFF);
                                 break;
                         }
                     }
@@ -273,13 +266,10 @@ public class SmsFragment extends Fragment {
                 }, new IntentFilter(SMS_DELIVERED));
 
 
-
                 SmsManager smsManager = SmsManager.getDefault();
                 smsManager.sendTextMessage(number, null, message, sentIntent, deliveredIntent);
             }
         });
-
-
 
 
     }

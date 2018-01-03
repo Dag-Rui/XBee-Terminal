@@ -6,6 +6,8 @@ import no.daffern.xbeecommunication.Utility;
 
 /**
  * Created by Daffern on 12.06.2016.
+ *
+ * Contains the data of a XBee node connected through the XBee network
  */
 public class Node {
 
@@ -20,7 +22,8 @@ public class Node {
 
     public Node() {
     }
-    public Node(byte[] address64){
+
+    public Node(byte[] address64) {
         this.address64 = address64;
     }
 
@@ -28,20 +31,19 @@ public class Node {
         this.address16 = address16;
         this.address64 = address64;
         this.nodeIdentifier = name;
-
     }
 
     public String toString() {
         return "{64 bit address is: " + Utility.bytesToHex(address64) + "; 16 bit address is: " + Utility.bytesToHex(address16) + "; Name is: " + nodeIdentifier + "}";
     }
+
     //returns the nodeIdentifier, or the address if not available
-    public String getNodeIdentifier(){
-        if (nodeIdentifier != null && nodeIdentifier.length() > 0){
+    public String getNodeIdentifier() {
+        if (nodeIdentifier != null && nodeIdentifier.length() > 0) {
             return nodeIdentifier;
-        }else if (address64 != null && address64.length > 0){
+        } else if (address64 != null && address64.length > 0) {
             return Utility.bytesToHex(address64);
-        }
-        else return "";
+        } else return "";
     }
 
     //HashCode used in mapping the Node
@@ -49,7 +51,7 @@ public class Node {
         return Arrays.hashCode(address64);
     }
 
-    public static int getKey(byte[] bytes){
+    public static int getKey(byte[] bytes) {
         return Arrays.hashCode(bytes);
     }
 

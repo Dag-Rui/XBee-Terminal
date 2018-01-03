@@ -10,6 +10,8 @@ import no.daffern.xbeecommunication.R;
 
 /**
  * Created by Daffern on 28.06.2016.
+ *
+ * TODO Not implemented
  */
 public class TerminalFragment extends Fragment {
     @Override

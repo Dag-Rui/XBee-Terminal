@@ -2,6 +2,8 @@ package no.daffern.xbeecommunication.Model;
 
 /**
  * Created by Daffern on 24.07.2016.
+ *
+ * Contains data for a received or sent SMS command
  */
 public class SmsMessage {
 
@@ -16,7 +18,7 @@ public class SmsMessage {
     public final static byte REMOTE_MOBILE_RESULT_ERROR_NULL_PDU = 6;
     public final static byte REMOTE_MOBILE_RESULT_ERROR_RADIO_OFF = 7;
 
-    static byte smsIdCounter=0;
+    static byte smsIdCounter = 0;
 
     String phoneNumber;
     String message;
@@ -32,9 +34,11 @@ public class SmsMessage {
         this.status = status;
         this.smsId = smsId;
     }
+
     public SmsMessage(String phoneNumber, String message, boolean sent, byte status) {
         this(new String(phoneNumber), new String(message), sent, status, smsIdCounter++);
     }
+
     public SmsMessage(byte[] phoneNumber, byte[] message, boolean sent, byte status) {
         this(new String(phoneNumber), new String(message), sent, status);
     }
@@ -60,7 +64,7 @@ public class SmsMessage {
         return status;
     }
 
-    public void setStatus(byte status){
+    public void setStatus(byte status) {
         this.status = status;
     }
 }

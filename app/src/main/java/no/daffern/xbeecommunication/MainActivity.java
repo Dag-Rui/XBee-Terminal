@@ -35,6 +35,11 @@ import no.daffern.xbeecommunication.USB.UsbHostWrapper;
 import no.daffern.xbeecommunication.XBee.Frames.XBeeFrame;
 import no.daffern.xbeecommunication.XBee.XBeeFrameBuffer;
 
+/**
+ * Created by Daffern on 04.06.2016.
+ *
+ * Initializes the UI together with the fragments and the USB wrappers
+ */
 
 public class MainActivity extends AppCompatActivity {
 
@@ -75,9 +80,6 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-
-
-
     //If the application is already open, the intent for usb will be received here
     @Override
     protected void onNewIntent(Intent intent) {
@@ -88,23 +90,19 @@ public class MainActivity extends AppCompatActivity {
         } else if (intent.hasExtra(UsbManager.EXTRA_ACCESSORY)) {
             UsbAccessory usbAccessory = intent.getParcelableExtra(UsbManager.EXTRA_ACCESSORY);
         }
-
-
-
     }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //Overrides exception handling caused by annoying debug apps
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
             public void uncaughtException(Thread thread, Throwable ex) {
                 ex.printStackTrace();
             }
         });
-
 
         xBeeFrameBuffer = new XBeeFrameBuffer();
         xBeeService = XBeeService.getInstance();
@@ -115,15 +113,14 @@ public class MainActivity extends AppCompatActivity {
                 return handleOutgoingMessage(bytes);
             }
         });
+
         initInterface();
         initFragments();
         initUsbHandlers();
 
-
         mainActivity = this;
         context = getBaseContext();
     }
-
 
     private void initInterface() {
         setContentView(R.layout.activity_main);
@@ -133,7 +130,6 @@ public class MainActivity extends AppCompatActivity {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
 
         setSupportActionBar(toolbar);
-
 
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
@@ -158,13 +154,9 @@ public class MainActivity extends AppCompatActivity {
                             //fr.addToBackStack(startFragment.getClass().getSimpleName());
                             fr.commit();
 
-
                         }
-
-
                         break;
                 }
-
                 return false;
             }
         });
@@ -177,7 +169,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
         );
-
     }
 
     private void initFragments() {
@@ -186,7 +177,6 @@ public class MainActivity extends AppCompatActivity {
         startFragment = new StartFragment();
         voiceFragment = new VoiceFragment();
         smsFragment = new SmsFragment();
-
 
         FragmentTransaction fr = getSupportFragmentManager().beginTransaction();
         fr.add(R.id.fragment_container, startFragment, "startFragment");
@@ -199,7 +189,6 @@ public class MainActivity extends AppCompatActivity {
                 replaceFragment(nodeListFragment, true);
             }
         });
-
 
         nodeListFragment.setNodeListListener(new NodeListListener() {
 
@@ -220,10 +209,8 @@ public class MainActivity extends AppCompatActivity {
                 voiceFragment.setCurrentNode(node);
                 replaceFragment(voiceFragment, true);
             }
-
         });
     }
-
 
     private boolean handleOutgoingMessage(byte[] bytes) {
         if (connectedState == ConnectedState.connectedAsAccessory) {
@@ -306,9 +293,8 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         });
-
     }
-
+    //buffers data received through USB
     private void bufferFrame(byte[] bytes) {
         ArrayList<XBeeFrame> frames;
         try {
@@ -321,53 +307,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-
-    public void storeData() {/*
-        File cacheDir = getCacheDir();
-        File messageFile = new File(cacheDir, "data");
-
-
-        try {
-            FileOutputStream fileOutputStream = new FileOutputStream(messageFile);
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
-            objectOutputStream.writeObject(networkHandler.getMessageMap());
-            objectOutputStream.writeObject(networkHandler.getNodeMap());
-            objectOutputStream.flush();
-            objectOutputStream.close();
-            fileOutputStream.close();
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
-    }
-
-    public void loadData() {/*
-        File cacheDir = getCacheDir();
-        File messageFile = new File(cacheDir, "data");
-
-        if (messageFile.exists()) {
-
-            try {
-                FileInputStream fileInputStream = new FileInputStream(messageFile);
-                ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-                networkHandler.setMessageMap((LinkedHashMap<Integer, Node>) objectInputStream.readObject());
-                networkHandler.setNodeMap((LinkedHashMap<Integer, ArrayList<ChatMessage>>) objectInputStream.readObject());
-
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (StreamCorruptedException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-
-            }
-        }*/
     }
 
     public static void replaceFragment(final Fragment fragment, final boolean addToBackStack) {
@@ -388,10 +327,8 @@ public class MainActivity extends AppCompatActivity {
                         ft.addToBackStack(backStateName);
                     ft.commit();
                 }
-
             }
         });
-
     }
 
     //static method to make a Toast(notice message on the screen)
@@ -413,49 +350,26 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public static Context getContext(){
+    public static Context getContext() {
         return context;
     }
-
-
-/*
-    private void switchFragment(Fragment fragment) {
-
-        if (fragment == currentFragment) {
-            return;
-        }
-        if (fragment == chatFragment) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, chatFragment, "chat").commit();
-
-        } else if (fragment == nodeListFragment) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, nodeListFragment, "chat").commit();
-        }
-        currentFragment = fragment;
-    }
-*/
 
     @Override
     public void onResume() {
         super.onResume();
-
         usbHostWrapper.onResume();
-
         //usbAccessoryWrapper.onResume();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-
-
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         //usbAccessoryWrapper.onDestroy();
-
         //storeData();
     }
-
 }

@@ -28,6 +28,9 @@ import no.daffern.xbeecommunication.XBeeService;
 
 /**
  * Created by Daffern on 27.05.2016.
+ *
+ * Implements the chat interface
+ * Communicates with XBee module through the XBeeService
  */
 public class ChatFragment extends Fragment {
 
@@ -98,7 +101,7 @@ public class ChatFragment extends Fragment {
 
                 int frameId = frame.getFrameId();
 
-                for (int i = unAcknowledgedFrames.size() - 1; i >= 0 ; i--) {
+                for (int i = unAcknowledgedFrames.size() - 1; i >= 0; i--) {
 
                     ChatMessage chatMessage = unAcknowledgedFrames.get(i);
 
@@ -115,9 +118,7 @@ public class ChatFragment extends Fragment {
                         break;
                     }
                 }
-
             }
-
         });
     }
 
@@ -127,7 +128,8 @@ public class ChatFragment extends Fragment {
             chatAdapter.setMessages(messageMap.get(currentNode.getKey()));
         }
     }
-    public void updateUI(){
+
+    public void updateUI() {
         if (getActivity() == null)
             return;
 
@@ -141,7 +143,6 @@ public class ChatFragment extends Fragment {
             }
         });
     }
-
 
     public void sendMessage(String message) {
         byte[] bytes = message.getBytes();
@@ -169,13 +170,12 @@ public class ChatFragment extends Fragment {
         }
 
         writeText.getText().clear();
-
     }
 
     private void initializeInterface() {
         writeText = (EditText) getView().findViewById(R.id.editText);
         writeText.setImeOptions(EditorInfo.IME_ACTION_SEND);
-        InputFilter inputFilter = new InputFilter.LengthFilter(XBeeTransmitFrame.MAX_RF_DATA-1);
+        InputFilter inputFilter = new InputFilter.LengthFilter(XBeeTransmitFrame.MAX_RF_DATA - 1);
         writeText.setFilters(new InputFilter[]{inputFilter});
         writeText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -206,9 +206,5 @@ public class ChatFragment extends Fragment {
         //update list interface for current node
         setCurrentNode(currentNode);
         chatAdapter.notifyDataSetChanged();
-
-
     }
-
-
 }

@@ -15,11 +15,11 @@
 USBHost usb;
 
 //Initialize ADK (object used to communicate with an Android device)
-ADK adk(&usb, "TKJElectronics", // Manufacturer Name
-        "ArduinoBlinkLED", // Model Name
-        "Example sketch for the USB Host Shield", // Description (user-visible string)
+ADK adk(&usb, "XBEECOM", // Manufacturer Name
+        "XBEECOM", // Model Name
+        "Android XBee bridge", // Description (user-visible string)
         "1.0", // Version
-        "http://www.tkjelectronics.dk/uploads/ArduinoBlinkLED.apk", // URL (web page to visit if no installed apps support the accessory)
+        "https://play.google.com/store/apps/details?id=no.daffern.xbeecommunication", // URL (web page to visit if no installed apps support the accessory)
         "123456789"); // Serial Number (optional)
 
 bool connected;

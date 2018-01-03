@@ -9,11 +9,7 @@ import android.content.IntentFilter;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
-import android.os.Handler;
-import android.os.Message;
-import android.widget.Toast;
 
-import com.felhr.usbserial.CDCSerialDevice;
 import com.felhr.usbserial.UsbSerialDevice;
 import com.felhr.usbserial.UsbSerialInterface;
 
@@ -25,6 +21,10 @@ import no.daffern.xbeecommunication.MainActivity;
 
 /**
  * Created by Daffern on 10.06.2016.
+ *
+ * Implementation for Android USB Host to a serial connection to an XBee module through an UART-USB bridge.
+ *
+ * See res/xml/device_filter.xml for supported devices
  */
 public class UsbHostWrapper {
 
@@ -65,14 +65,15 @@ public class UsbHostWrapper {
             requestUserPermission(usbDevice);
         }
     }
+
     public void onResume() {
         UsbDevice usbDevice = findSerialPortDevice();
-        if (usbDevice != null){
+        if (usbDevice != null) {
             tryOpenUsbDevice(usbDevice);
         }
     }
 
-
+    //receiver for USB device connections
     private final BroadcastReceiver usbReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context arg0, Intent intent) {
@@ -92,7 +93,7 @@ public class UsbHostWrapper {
 
                     UsbDevice usbDevice = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
 
-                    if (usbDevice == null){
+                    if (usbDevice == null) {
                         usbDevice = findSerialPortDevice();
                     }
                     tryOpenUsbDevice(usbDevice);
@@ -142,6 +143,7 @@ public class UsbHostWrapper {
         return null;
     }
 
+    //register usb receiver and add filter for acquiring permission and when it is detached
     private void setFilter() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(ACTION_USB_HOST_PERMISSION);
@@ -151,14 +153,11 @@ public class UsbHostWrapper {
 
     }
 
-    /*
-     * Request user permission. The response will be received in the BroadcastReceiver
-     */
+     // Request user permission. The response will be received in the BroadcastReceiver
     private void requestUserPermission(UsbDevice usbDevice) {
         PendingIntent permissionIntent = PendingIntent.getBroadcast(activity, 0, new Intent(ACTION_USB_HOST_PERMISSION), 0);
         usbManager.requestPermission(usbDevice, permissionIntent);
     }
-
 
     /*
      * A simple thread to open a serial port.
@@ -204,9 +203,8 @@ public class UsbHostWrapper {
         }
     };
 
-    /*
-     * State changes in the CTS line will be received here
-     */
+
+    //State changes in the CTS line will be received here
     private UsbSerialInterface.UsbCTSCallback ctsCallback = new UsbSerialInterface.UsbCTSCallback() {
         @Override
         public void onCTSChanged(boolean state) {
@@ -220,9 +218,8 @@ public class UsbHostWrapper {
         }
     };
 
-    /*
-     * State changes in the DSR line will be received here
-     */
+
+    //State changes in the DSR line will be received here
     private UsbSerialInterface.UsbDSRCallback dsrCallback = new UsbSerialInterface.UsbDSRCallback() {
         @Override
         public void onDSRChanged(boolean state) {

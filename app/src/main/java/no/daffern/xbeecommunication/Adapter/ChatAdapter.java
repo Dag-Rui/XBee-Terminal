@@ -24,25 +24,25 @@ public class ChatAdapter extends ArrayAdapter<ChatMessage> {
 
     private List<ChatMessage> messages;
 
-
-    int maxCount=100;
+    int maxCount = 100;
 
     @Override
     public void add(ChatMessage object) {
         messages.add(object);
 
-        if (messages.size() >= maxCount){
+        if (messages.size() >= maxCount) {
             messages.remove(0);
         }
 
         super.add(object);
     }
 
-    public ChatAdapter( Activity activity, int resourceId) {
+    public ChatAdapter(Activity activity, int resourceId) {
         super(activity, resourceId);
 
     }
-    public void setMessages(ArrayList<ChatMessage> messages){
+
+    public void setMessages(ArrayList<ChatMessage> messages) {
         this.messages = messages;
         notifyDataSetChanged();
     }
@@ -70,22 +70,22 @@ public class ChatAdapter extends ArrayAdapter<ChatMessage> {
 
         TextView status = (TextView) row.findViewById(R.id.status);
         TextView comment = (TextView) row.findViewById(R.id.message);
-        TextView time = (TextView)row.findViewById(R.id.time);
+        TextView time = (TextView) row.findViewById(R.id.time);
 
         ChatMessage message = getItem(position);
         comment.setText(message.comment);
         status.setText(message.status);
 
-        if (message.time == 0){
+        if (message.time == 0) {
             time.setText("");
-        }else{
+        } else {
             String sTime = new SimpleDateFormat("HH.mm.ss").format(message.time);
             time.setText(sTime);
         }
 
         if (message.status.equals(""))
             status.setVisibility(View.GONE);
-        else{
+        else {
             status.setVisibility(View.VISIBLE);
         }
 
@@ -95,8 +95,8 @@ public class ChatAdapter extends ArrayAdapter<ChatMessage> {
         return row;
     }
 
-    public void setMaxCount(int maxCount){
-        this.maxCount=maxCount;
+    public void setMaxCount(int maxCount) {
+        this.maxCount = maxCount;
     }
 
     public Bitmap decodeToBitmap(byte[] decodedByte) {

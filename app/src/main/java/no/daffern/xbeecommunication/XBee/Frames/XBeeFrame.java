@@ -4,13 +4,15 @@ import no.daffern.xbeecommunication.XBee.XBeeChecksum;
 
 /**
  * Created by Daffern on 04.06.2016.
+ *
+ * Abstract class for all XBee Frames
  */
 public abstract class XBeeFrame {
 
-    public static final byte START_DELIMITER = 0x7E;
+    public static final byte START_DELIMITER = 0x7E;//Frames always start with the start delimiter
 
     public static final byte FRAME_BASE_SIZE = 0x04; // start delimiter + length + checksum
-    public static final byte MAX_DATA_SIZE = 73; //0x49
+    public static final byte MAX_DATA_SIZE = 73; //0x49, max data size, may be higher on some modules
 
     private static byte frameIdCounter = 0x01;
 
@@ -21,14 +23,14 @@ public abstract class XBeeFrame {
     protected XBeeChecksum checksum = new XBeeChecksum();
 
 
-    public byte getFrameType(){
+    public byte getFrameType() {
         return frameType;
     }
 
-    protected byte getNextFrameId(){
+    protected byte getNextFrameId() {
         if (frameIdCounter == 0xFF) {
             frameIdCounter = 0x01;
-        }else{
+        } else {
             frameIdCounter++;
         }
         return frameIdCounter;
@@ -39,7 +41,7 @@ public abstract class XBeeFrame {
     }
 
     //Method overriden by subclasses
-    public byte[] generateFrame(){
+    public byte[] generateFrame() {
         return null;
     }
 }
