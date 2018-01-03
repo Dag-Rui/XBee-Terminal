@@ -10,7 +10,7 @@ import no.daffern.xbeecommunication.XBee.XBeeFrameType;
  * Generates an XBee Transmit frame which is used to send data over the XBee network.
  * The data sent is received by another node in the form of an XBeeReceiveFrame.
  *
- * If not address is set, the default is to broadcast
+ * If address is not set, the default is to broadcast
  */
 public class XBeeTransmitFrame extends XBeeFrame {
 

@@ -65,7 +65,10 @@ public class XBeeService {
         return messageListener.onMessageReceived(xBeeFrame.generateFrame());
     }
 
-    //Only called from the MainActivity. Handles frames by keeping track of nodes and distributing frames to each fragment through the
+    /*
+    * Only called from the MainActivity (See MainActivity.bufferFrame())
+    * Handles frames by keeping track of nodes and distributing frames to each fragment through the XBeeFrameListeners
+     */
     public void receiveFrame(XBeeFrame frame) {
 
         switch (frame.getFrameType()) {
